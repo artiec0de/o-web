@@ -1,7 +1,7 @@
 {
   "name": "Orik",
   "short_name": "Orik",
-  "description": "Shpëto shqiponjën: a retro platformer across Albania.",
+  "description": "Shpëto shqiponjën: një lojë retro nëpër Shqipëri.",
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",

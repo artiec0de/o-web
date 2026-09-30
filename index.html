@@ -115,12 +115,12 @@ body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--font-bo
 <body>
 
 <div id="app">
-  <canvas id="game" width="320" height="192" aria-label="Orik game screen"></canvas>
+  <canvas id="game" width="320" height="192" aria-label="Ekrani i lojës Orik"></canvas>
   <div id="pad" aria-hidden="true">
     <div class="tb" id="tL"><svg viewBox="0 0 20 20"><path d="M14 3 5 10l9 7z"/></svg></div>
     <div class="tb" id="tR"><svg viewBox="0 0 20 20"><path d="M6 3l9 7-9 7z"/></svg></div>
-    <div class="tb" id="tB"><span>B</span><small>run · olive</small></div>
-    <div class="tb" id="tA"><span>A</span><small>jump</small></div>
+    <div class="tb" id="tB"><span>B</span><small>vrap · ulli</small></div>
+    <div class="tb" id="tA"><span>A</span><small>kërce</small></div>
   </div>
   <div id="hud" hidden>
     <div class="chip"><span class="coin">L</span><b id="hLeke">0</b></div>
@@ -128,17 +128,17 @@ body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--font-bo
     <div class="chip" id="hMission"></div>
     <div class="spacer"></div>
     <div class="chip" id="hLevel"></div>
-    <button class="hbtn" id="bMute" type="button" aria-label="Sound on or off">♪</button>
-    <button class="hbtn" id="bPause" type="button" aria-label="Pause">II</button>
+    <button class="hbtn" id="bMute" type="button" aria-label="Zëri">♪</button>
+    <button class="hbtn" id="bPause" type="button" aria-label="Pushim">II</button>
   </div>
   <div id="toast" hidden></div>
   <div id="screen" hidden></div>
   <div id="rotate" hidden>
     <div class="card">
       <div class="phone"></div>
-      <h2>Rotate your phone</h2>
-      <p class="hint">Orik runs sideways. Turn the phone to landscape.</p>
-      <div class="row"><button class="btn ghost" id="bFsR" type="button">Try fullscreen</button></div>
+      <h2>Rrotullo telefonin</h2>
+      <p class="hint">Orik vrapon anash. Ktheje telefonin horizontalisht.</p>
+      <div class="row"><button class="btn ghost" id="bFsR" type="button">Ekran i plotë</button></div>
     </div>
   </div>
 </div>
@@ -365,10 +365,10 @@ function level4() {
 }
 
 const LEVELS = [
-  { name: 'Plazhi i Durrësit', en: 'Durrës beach', short: 'DURRËS', kind: 'leke', need: 40, mission: 'Collect 40 lekë, then grab the flag.', build: level1 },
-  { name: 'Berati', en: 'City of a thousand windows', short: 'BERAT', kind: 'lambs', need: 3, mission: 'Find and rescue 3 lost lambs (qengja), then grab the flag.', build: level2 },
-  { name: 'Thethi', en: 'The Accursed Mountains', short: 'THETH', kind: 'avalanche', mission: 'An avalanche (orteku) is coming. Run to the flag before it buries you.', build: level3 },
-  { name: 'Kalaja e Rozafës', en: 'Rozafa Castle, Shkodër', short: 'ROZAFA', kind: 'boss', need: 3, mission: 'Find 3 keys to the castle gate, beat Kuçedra, free the double-headed eagle.', build: level4 }
+  { name: 'Plazhi i Durrësit', en: 'Rëra, deti dhe bunkerët', short: 'DURRËS', kind: 'leke', need: 40, mission: 'Mblidh 40 lekë, pastaj kap flamurin.', build: level1 },
+  { name: 'Berati', en: 'Qyteti i një mbi një dritareve', short: 'BERAT', kind: 'lambs', need: 3, mission: 'Gjej dhe shpëto 3 qengjat e humbur, pastaj kap flamurin.', build: level2 },
+  { name: 'Thethi', en: 'Bjeshkët e Nemuna', short: 'THETH', kind: 'avalanche', mission: 'Po vjen orteku! Vrapo te flamuri para se të të mbulojë.', build: level3 },
+  { name: 'Kalaja e Rozafës', en: 'Shkodër', short: 'ROZAFA', kind: 'boss', need: 3, mission: 'Gjej 3 çelësat e portës, mund Kuçedrën dhe liro shqiponjën dykrenore.', build: level4 }
 ];
 
 /* ---------------- audio ---------------- */
@@ -610,7 +610,7 @@ function addPop(x, y, txt) { pops.push({ x, y, txt, t: 0 }); }
 function sparkle(x, y, n, k) { for (let i = 0; i < (n || 8); i++) { const a = Math.random() * Math.PI * 2, s = 0.6 + Math.random() * 1.4; addPart(k || 'spark', x, y, Math.cos(a) * s, Math.sin(a) * s - 0.5, 24 + Math.random() * 16); } }
 function addLeke(n) {
   const before = totalLeke; levelLeke += n; totalLeke += n;
-  if (Math.floor(totalLeke / 100) > Math.floor(before / 100)) { lives++; sfx('one'); toast('100 lekë · +1 life'); }
+  if (Math.floor(totalLeke / 100) > Math.floor(before / 100)) { lives++; sfx('one'); toast('100 lekë · +1 jetë'); }
 }
 function collectCoin(c) { c.got = true; addLeke(1); sfx('coin'); sparkle(c.x + 5, c.y + 6, 5); }
 function coinPop(tx, ty) { addPart('coin', tx * 16 + 2, ty * 16 - 14, 0, -4.2, 24); addLeke(1); sfx('coin'); }
@@ -678,7 +678,7 @@ function updPlayer() {
   if (p.hitHead) bumpBlock(p.hitHead[0], p.hitHead[1]);
   if (p.hitWall && L.gateX != null && !L.gateOpen && denyT <= 0) {
     const tx = Math.floor((p.hitWall > 0 ? p.x + p.w + 1 : p.x - 1) / 16), ty = Math.floor((p.y + p.h - 2) / 16);
-    if (tx === L.gateX && L.t[ty * L.w + tx] === T.GATE) { toast(`The gate is locked · keys ${mission.keys}/3`); sfx('deny'); denyT = 120; }
+    if (tx === L.gateX && L.t[ty * L.w + tx] === T.GATE) { toast(`Porta është e mbyllur · çelësa ${mission.keys}/3`); sfx('deny'); denyT = 120; }
   }
   if (p.onGround) p.anim += Math.abs(p.vx) * 0.13;
   if (p.inv > 0) p.inv--;
@@ -743,7 +743,7 @@ function updFires() {
 function spawnBoss() {
   const a = L.arena;
   boss = { x: (a.x0 + 10) * 16, y: 10 * 16 - 38, w: 44, h: 38, vx: -0.8, vy: 0, hp: 9, inv: 0, t: 0, face: -1, dying: false, act: 0, fireQ: 0, fireN: 0 };
-  toast('KUÇEDRA! Stomp her heads or throw olives.', 2600); playMusic('boss');
+  toast('KUÇEDRA! Kërce mbi kokat e saj ose hidhi ullinj.', 2600); playMusic('boss');
 }
 function hitBoss(n) {
   const b = boss; if (!b || b.dying) return;
@@ -776,12 +776,12 @@ function updBoss() {
 function bossDefeated() {
   L.bossDead = true; const a = L.arena; a.locked = false;
   for (let y = 0; y <= 9; y++) { if (L.t[y * L.w + a.x1]) { L.t[y * L.w + a.x1] = 0; brickBreak(a.x1, y); } }
-  sfx('gate'); toast('Kuçedra is beaten! Free the eagle.', 2600); playMusic(3);
+  sfx('gate'); toast('Kuçedra u mund! Liro shqiponjën.', 2600); playMusic(3);
 }
 function openGate() {
   L.gateOpen = true;
   for (let y = 6; y <= 9; y++) { L.t[y * L.w + L.gateX] = 0; sparkle(L.gateX * 16 + 8, y * 16 + 8, 6); }
-  sfx('gate'); toast('The gate of Rozafa opens!', 2200);
+  sfx('gate'); toast('Porta e Rozafës u hap!', 2200);
 }
 function updAval() {
   if (!aval || player.dead) return;
@@ -815,16 +815,16 @@ function updateWorld() {
     for (const c of L.coins) if (!c.got && overlap(p, c)) collectCoin(c);
     for (const l of L.lambs) if (!l.got && overlap(p, l)) {
       l.got = true; mission.lambs++; sfx('lamb'); for (let i = 0; i < 6; i++) addPart('heart', l.x + 7, l.y, (Math.random() - 0.5) * 1.2, -0.8 - Math.random(), 50);
-      toast(mission.lambs >= 3 ? 'All 3 lambs rescued! Now grab the flag.' : `Lamb rescued · ${mission.lambs}/3`);
+      toast(mission.lambs >= 3 ? 'U shpëtuan të 3 qengjat! Tani kap flamurin.' : `Qengj i shpëtuar · ${mission.lambs}/3`);
     }
     for (const k of L.keys) if (!k.got && overlap(p, k)) {
       k.got = true; mission.keys++; sfx('key'); sparkle(k.x + 7, k.y + 3, 12);
-      if (mission.keys >= 3) openGate(); else toast(`Key found · ${mission.keys}/3`);
+      if (mission.keys >= 3) openGate(); else toast(`Çelës i gjetur · ${mission.keys}/3`);
     }
-    for (const c of L.cps) if (!c.on && p.x >= c.x) { c.on = true; cpActive = c; sfx('cp'); toast('Checkpoint', 1100); }
+    for (const c of L.cps) if (!c.on && p.x >= c.x) { c.on = true; cpActive = c; sfx('cp'); toast('Pikë kontrolli', 1100); }
     if (L.goal && overlap(p, { x: L.goal.x + 5, y: 24, w: 6, h: 120 })) {
       if (missionMet()) startClear();
-      else if (denyT <= 0) { denyT = 100; sfx('deny'); toast(L.def.kind === 'leke' ? `Need ${L.def.need} lekë · you have ${levelLeke}` : `Rescue all lambs first · ${mission.lambs}/3`); }
+      else if (denyT <= 0) { denyT = 100; sfx('deny'); toast(L.def.kind === 'leke' ? `Duhen ${L.def.need} lekë · ke ${levelLeke}` : `Shpëto fillimisht qengjat · ${mission.lambs}/3`); }
     }
     if (L.arena && !L.arena.locked && !L.bossDead && p.x > (L.arena.x0 + 1) * 16 + 4) {
       for (let y = 0; y <= 9; y++) L.t[y * L.w + L.arena.x0] = T.STONE;
@@ -837,7 +837,7 @@ function updateWorld() {
   updCam();
 }
 function startClear() {
-  st = 'clear'; stT = 0; stopMusic(); sfx('clear'); toast('Flag reached!', 1500);
+  st = 'clear'; stT = 0; stopMusic(); sfx('clear'); toast('Flamuri u arrit!', 1500);
   const p = player; p.vx = 0; p.vy = 0; p.inv = 0; p.x = L.goal.x + 7 - p.w;
 }
 function updClear() {
@@ -1083,7 +1083,7 @@ function updHud() {
   const d = L.def; let m = '', done = false, alarm = false;
   if (d.kind === 'leke') { m = `LEKË ${Math.min(levelLeke, d.need)}/${d.need}`; done = levelLeke >= d.need; }
   else if (d.kind === 'lambs') { m = `QENGJA ${mission.lambs}/3`; done = mission.lambs >= 3; }
-  else if (d.kind === 'avalanche') { const gap = aval ? player.x - aval.x : 999; alarm = gap < 120 && st === 'play'; m = alarm ? 'ORTEKU! VRAP!' : 'ORTEKU ▸ RUN'; }
+  else if (d.kind === 'avalanche') { const gap = aval ? player.x - aval.x : 999; alarm = gap < 120 && st === 'play'; m = alarm ? 'ORTEKU! VRAP!' : 'ORTEKU ▸ VRAP'; }
   else { if (!L.gateOpen) m = `ÇELËSA ${mission.keys}/3`; else if (boss) m = 'KUÇEDRA ' + '■'.repeat(Math.max(0, Math.ceil(boss.hp / 3))); else if (L.bossDead) { m = 'LIRO SHQIPONJËN'; done = true; } else m = 'KALAJA ▸'; }
   hudSet('hMission', m);
   const el = $('hMission'); el.classList.toggle('done', done); el.classList.toggle('alarm', alarm);
@@ -1101,17 +1101,17 @@ function paintEagle(canvas) { const c = canvas.getContext('2d'); c.imageSmoothin
 
 function toTitle() {
   st = 'title'; stopMusic(); setHud(false); loadLevel(0);
-  const lvls = LEVELS.map((d, i) => `<button class="lvb" type="button" data-l="${i}" ${i + 1 > save.unlocked ? 'disabled' : ''}><b>NIVELI ${i + 1}</b>${i + 1 > save.unlocked ? 'Locked' : d.name}</button>`).join('');
+  const lvls = LEVELS.map((d, i) => `<button class="lvb" type="button" data-l="${i}" ${i + 1 > save.unlocked ? 'disabled' : ''}><b>NIVELI ${i + 1}</b>${i + 1 > save.unlocked ? 'I kyçur' : d.name}</button>`).join('');
   showScreen(`<div class="card title">
     <div class="brand">
       <div class="flagbox"><canvas id="tEagle" width="22" height="20"></canvas></div>
       <h1 class="logo">ORIK</h1>
-      <p class="tag">Shpëto shqiponjën <span>· Save the eagle</span></p>
+      <p class="tag">Shpëto shqiponjën <span>· një aventurë shqiptare</span></p>
     </div>
     <div class="side">
       <div class="lv">${lvls}</div>
-      <div class="row"><button class="btn red" id="bPlay" type="button">Luaj · Play</button><button class="btn ghost" id="bFs" type="button">Fullscreen</button></div>
-      <p class="help"><b>Touch</b> left thumb moves, A jumps, B runs and throws olives.<br><b>Keys</b> arrows, Space jump, X run, P pause. <b>Controller</b> stick, A jump, X run.</p>
+      <div class="row"><button class="btn red" id="bPlay" type="button">Luaj</button><button class="btn ghost" id="bFs" type="button">Ekran i plotë</button></div>
+      <p class="help"><b>Prekje</b> gishti i majtë lëviz, A kërcen, B vrapon dhe hedh ullinj.<br><b>Tastiera</b> shigjetat, Space kërcim, X vrap, P pushim. <b>Kontrolluesi</b> leva, A kërcim, X vrap.</p>
     </div></div>`);
   paintEagle($('tEagle'));
   on('bPlay', () => newGame(save.unlocked - 1));
@@ -1126,7 +1126,7 @@ function startLevel(i) {
     <p class="eyebrow">NIVELI ${i + 1} / 4</p><h2>${d.name}</h2><p class="en">${d.en}</p>
     <div class="mission"><b>MISIONI</b>${d.mission}</div>
     <div class="stats"><span><span class="plis"></span>×${lives}</span><span><span class="coin">L</span>${totalLeke}</span></div>
-    <div class="row"><button class="btn red" id="bGo" type="button">Start</button></div></div>`);
+    <div class="row"><button class="btn red" id="bGo" type="button">Fillo</button></div></div>`);
   on('bGo', beginPlay);
 }
 function beginPlay() {
@@ -1135,33 +1135,33 @@ function beginPlay() {
 function pause() {
   if (st !== 'play') return;
   st = 'pause'; stopMusic();
-  showScreen(`<div class="card"><p class="eyebrow">PUSHIM</p><h2>Paused</h2>
-    <div class="row"><button class="btn red" id="bRes" type="button">Resume</button><button class="btn" id="bRst" type="button">Restart level</button><button class="btn ghost" id="bQuit" type="button">Title</button></div></div>`);
+  showScreen(`<div class="card"><p class="eyebrow">PUSHIM</p><h2>Merr frymë, Orik</h2>
+    <div class="row"><button class="btn red" id="bRes" type="button">Vazhdo</button><button class="btn" id="bRst" type="button">Rifillo nivelin</button><button class="btn ghost" id="bQuit" type="button">Menuja</button></div></div>`);
   on('bRes', resume); on('bRst', () => startLevel(levelIdx)); on('bQuit', toTitle);
 }
 function resume() { hideScreen(); st = 'play'; showPad(); playMusic(boss ? 'boss' : THEMES[L.theme].music); }
 function gameOver() {
   st = 'over'; stopMusic(); setHud(false);
-  showScreen(`<div class="card"><p class="eyebrow">LOJA MBAROI</p><h2>Game over</h2><p class="hint">Orik is out of lives. The level starts over with 3 new ones.</p>
-    <div class="row"><button class="btn red" id="bAgain" type="button">Try again</button><button class="btn ghost" id="bQuit" type="button">Title</button></div></div>`);
+  showScreen(`<div class="card"><p class="eyebrow">LOJA MBAROI</p><h2>Orikut i mbaruan jetët</h2><p class="hint">Niveli rifillon me 3 jetë të reja.</p>
+    <div class="row"><button class="btn red" id="bAgain" type="button">Provo përsëri</button><button class="btn ghost" id="bQuit" type="button">Menuja</button></div></div>`);
   on('bAgain', () => { lives = 3; startLevel(levelIdx); }); on('bQuit', toTitle);
 }
 function levelComplete() {
   st = 'done'; setHud(false);
   save.unlocked = Math.max(save.unlocked, Math.min(4, levelIdx + 2)); persist();
   const next = levelIdx + 1;
-  showScreen(`<div class="card"><p class="eyebrow">NIVELI U KRYE</p><h2>${L.def.name} cleared</h2>
-    <div class="stats"><span><span class="coin">L</span>${levelLeke} this level</span><span><span class="coin">L</span>${totalLeke} total</span><span><span class="plis"></span>×${lives}</span></div>
-    <div class="row"><button class="btn red" id="bNext" type="button">Next · ${LEVELS[next].name}</button><button class="btn ghost" id="bQuit" type="button">Title</button></div></div>`);
+  showScreen(`<div class="card"><p class="eyebrow">NIVELI U KRYE</p><h2>${L.def.name}: e kryer</h2>
+    <div class="stats"><span><span class="coin">L</span>${levelLeke} në këtë nivel</span><span><span class="coin">L</span>${totalLeke} gjithsej</span><span><span class="plis"></span>×${lives}</span></div>
+    <div class="row"><button class="btn red" id="bNext" type="button">Tjetri · ${LEVELS[next].name}</button><button class="btn ghost" id="bQuit" type="button">Menuja</button></div></div>`);
   on('bNext', () => startLevel(next)); on('bQuit', toTitle);
 }
 function victory() {
   st = 'victory'; setHud(false); save.unlocked = 4; persist();
   showScreen(`<div class="card">
     <div class="brand"><div class="flagbox"><canvas id="vEagle" width="22" height="20"></canvas></div></div>
-    <p class="eyebrow">FITORE</p><h2>Shqiponja është e lirë!</h2><p class="en">The eagle is free. Kuçedra won't be back until the sequel.</p>
-    <div class="stats"><span><span class="coin">L</span>${totalLeke} lekë</span><span><span class="plis"></span>×${lives} left</span></div>
-    <div class="row"><button class="btn red" id="bAgain" type="button">Play again</button><button class="btn ghost" id="bQuit" type="button">Title</button></div></div>`);
+    <p class="eyebrow">FITORE</p><h2>Shqiponja është e lirë!</h2><p class="en">Kuçedra nuk kthehet më. Të paktën deri te pjesa e dytë.</p>
+    <div class="stats"><span><span class="coin">L</span>${totalLeke} lekë</span><span><span class="plis"></span>×${lives} jetë mbetur</span></div>
+    <div class="row"><button class="btn red" id="bAgain" type="button">Luaj përsëri</button><button class="btn ghost" id="bQuit" type="button">Menuja</button></div></div>`);
   paintEagle($('vEagle'));
   on('bAgain', () => newGame(0)); on('bQuit', toTitle);
 }
@@ -1178,7 +1178,7 @@ async function goFullscreen(silent) {
       if (!el.requestFullscreen) throw new Error('no fs');
       await el.requestFullscreen({ navigationUI: 'hide' });
     }
-  } catch (e) { if (silent !== true) toast('Fullscreen is not available here', 1800); return; }
+  } catch (e) { if (silent !== true) toast('Ekrani i plotë nuk lejohet këtu', 1800); return; }
   try { await screen.orientation.lock('landscape'); } catch (e) {}
 }
 let wake = null;
