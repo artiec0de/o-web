@@ -473,11 +473,11 @@ const LEVELS = [
 ];
 const NLV = LEVELS.length;
 const STORY_START = [
-  { art: 'eagle', text: 'Çdo mëngjes, kur dielli dilte mbi Llogara, shqiponja dykrenore zbriste nga flamuri dhe numëronte gjithçka: malet, lumenjtë, kështjellat, madje edhe dhitë e Thethit. Pastaj kthehej në vend, e kënaqur. Asgjë nuk kishte munguar ndonjëherë.' },
-  { art: 'kucedra', text: 'Deri në natën e stuhisë. Kuçedra, e xhelozuar se njerëzit këndonin për shqiponjën e jo për të, doli nga liqeni i Shkodrës me nëntë gjuhë zjarri. Rrëmbeu shqiponjën dhe, për ta bërë punën më keq, vodhi edhe përkrenaren e Skënderbeut nga Kruja.' },
-  { art: 'feather', text: 'Shqiponja nuk u dorëzua. Luftoi gjithë rrugës dhe pendët i ranë një nga një mbi qytete, rrënoja dhe bjeshkë. Plakat e Beratit thonë se pa ato pendë, kafazi i Kuçedrës nuk hapet kurrë.' },
-  { art: 'orik', text: 'Në Vlorë, Oriku dhjetëvjeçar, flokëverdhë e i paaftë të rrinte ulur, gjeti një pendë të zezë në ballkonin e gjyshes. Ishte ende e ngrohtë, dhe drejtohej nga veriu.' },
-  { art: 'byrek', text: 'Gjyshja i vuri plisin e bardhë në kokë, i futi një byrek në trastë dhe i tha: “Tre pendë në çdo qytet, bir. Mos u fut në bunkerë të panjohur, mos u zër me dhitë dhe mos i numëro lekët para se të mbarosh punën.”' }
+  { art: 'eagle', text: 'Na ishte një herë, ku s\'ishte, një shqiponjë me dy krerë, që rrinte mbi flamurin kuq e zi dhe e ruante vendin ditë e natë. Me njërën kokë shihte nga lindja, me tjetrën nga perëndimi. Sa kohë ajo rrinte zgjuar, asnjë e keqe nuk guxonte t\'i kalonte malet.' },
+  { art: 'kucedra', text: 'Por një natë pa hënë, qielli gjëmoi dhe liqeni i Shkodrës u trazua deri në fund. Nga thellësitë e tij doli Kuçedra, me nëntë gjuhë zjarri dhe me zemër të nxirë nga zilia. Me një frymë shuajti yjet, me një të rrahur krahësh rrëmbeu shqiponjën.' },
+  { art: 'helmet', text: 'E mbylli në një kafaz hekuri, lart në kalanë e Rozafës. Pastaj fluturoi mbi Krujë dhe vodhi përkrenaren e Skënderbeut, që askush të mos guxonte më të ngrihej kundër saj. Flamujt mbetën bosh, dhe mbi vend ra një heshtje e rëndë.' },
+  { art: 'feather', text: 'Por shqiponja nuk u dorëzua pa luftë. Gjatë gjithë rrugës u përpoq në kthetrat e Kuçedrës, dhe pendët i ranë një nga një mbi qytete, rrënoja e bjeshkë. Pleqtë thonë se vetëm me ato pendë mund të thyhet kafazi i mallkuar.' },
+  { art: 'orik', text: 'Në Vlorë, në shtëpinë e fundit buzë detit, jetonte Oriku, një djalë flokëverdhë me zemër të madhe. Një mëngjes gjeti në prag një pendë të zezë, ende të ngrohtë. Gjyshja ia vuri plisin e bardhë në kokë, i dha bekimin dhe i tha: «Shko, bir. Mblidhi pendët një nga një dhe mos u kthe pa shqiponjën.»' }
 ];
 const STORY_END = [
   { art: 'helmet', text: 'Kuçedra ra në humnerën nën kala. Kafazi u thye, dhe pas tij shkëlqeu diçka e njohur: përkrenarja e Skënderbeut, me kokën e dhisë, e paprekur.' },
@@ -1576,7 +1576,7 @@ function pause() {
 function resume() { hideScreen(); st = 'play'; showPad(); playMusic(boss ? 'boss' : THEMES[L.theme].music); }
 function gameOver() {
   recordBest(); st = 'over'; stopMusic(); setHud(false);
-  showScreen(`<div class="card"><p class="eyebrow">LOJA MBAROI</p><h2>Orikut i mbaruan jetët</h2><p class="hint">Niveli rifillon me 3 jetë të reja.</p>
+  showScreen(`<div class="card"><p class="eyebrow">LOJA MBAROI</p><h2>Oriku ra, por nuk u dorëzua</h2><p class="hint">Ngrihu dhe provo përsëri. Niveli rifillon me 3 jetë.</p>
     <div class="row"><button class="btn red" id="bAgain" type="button">Provo përsëri</button><button class="btn ghost" id="bQuit" type="button">Menuja</button></div></div>`);
   on('bAgain', () => { lives = 3; score = 0; startLevel(levelIdx); }); on('bQuit', toTitle);
 }
