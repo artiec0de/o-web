@@ -78,6 +78,7 @@ body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--font-bo
 .brand{display:grid;justify-items:center;gap:8px}
 .flagbox{background:var(--flag);border:3px solid #000;padding:6px 10px;box-shadow:3px 3px 0 #000;line-height:0}
 .flagbox canvas{width:66px;height:60px;image-rendering:pixelated}
+.flagbox.helm{background:#2b2126}
 .logo{margin:0;font-family:var(--font-display);font-weight:400;font-size:clamp(40px,9vw,66px);letter-spacing:.04em;color:var(--flag);text-shadow:4px 4px 0 #000;line-height:1}
 .tag{margin:0;font-size:17px;color:var(--paper)}
 .tag span{color:var(--muted)}
@@ -103,6 +104,11 @@ body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--font-bo
 .stats{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;font-family:var(--font-display);font-size:11px;font-variant-numeric:tabular-nums}
 .stats span{display:flex;align-items:center;gap:6px}
 .hint{margin:0;font-size:13px;color:var(--muted)}
+.lvb.final{grid-column:1 / -1}
+.story{max-width:560px}
+.art{justify-self:center;image-rendering:pixelated;height:auto}
+.tale{margin:0;font-size:19px;line-height:1.5;text-align:left;text-wrap:pretty}
+@media (max-width:560px){#hScoreC{display:none}}
 
 /* Rotate prompt */
 #rotate{position:absolute;inset:0;z-index:20;background:var(--ink);display:grid;place-items:center;text-align:center;padding:24px}
@@ -125,6 +131,7 @@ body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--font-bo
   <div id="hud" hidden>
     <div class="chip"><span class="coin">L</span><b id="hLeke">0</b></div>
     <div class="chip"><span class="plis"></span><b id="hLives">×3</b></div>
+    <div class="chip" id="hScoreC"><b id="hScore">0</b></div>
     <div class="chip" id="hMission"></div>
     <div class="spacer"></div>
     <div class="chip" id="hLevel"></div>
@@ -162,7 +169,7 @@ function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save));
 /* ---------------- sprites ---------------- */
 const PAL = { K:'#1a1418', W:'#f4f1e8', R:'#d7263d', r:'#8e1b2a', S:'#f0b58a', s:'#c9855a', O:'#6b3e26',
   Y:'#f5c542', y:'#b8860b', G:'#3aa655', g:'#1f6b35', P:'#5b3a8c', p:'#3a2560', L:'#55661f', l:'#8a9a3a',
-  T:'#e3a857', t:'#a0612b', D:'#2e7d4f', d:'#163d27', B:'#8fcf6a', F:'#ff8c1a', f:'#ffd23f', H:'#8b5a3c', h:'#5e3a24', E:'#d9d4c8' };
+  T:'#e3a857', t:'#a0612b', D:'#2e7d4f', d:'#163d27', B:'#8fcf6a', F:'#ff8c1a', f:'#ffd23f', H:'#8b5a3c', h:'#5e3a24', E:'#d9d4c8', A:'#f4d35e', a:'#c99a2e', u:'#fbe3a4', n:'#4a8a2c', N:'#2f5e1c', c:'#f3ead2', X:'#b4202f', Q:'#e4e7eb', V:'#8f959e', q:'#6fa8cf', j:'#3d6f93' };
 function mk(rows, pal) {
   pal = pal || PAL;
   const h = rows.length, w = Math.max(...rows.map(r => r.length));
@@ -176,7 +183,7 @@ const both = c => [c, flipC(c)];
 const dbl = rows => { const o = []; rows.forEach(r => { o.push(r, r); }); return o; };
 
 // Orik: white plis (felt cap), black moustache, red vest over white shirt
-const OH = ['.....WWWWW......','....WWWWWWW.....','....KKSSSSS.....','....KSSSKSS.....','....KSSSSSSs....','.....SKKKKS.....','......SSSS......'];
+const OH = ['.....WWWWW......','....WWWWWWW.....','...AAASSSSS.....','...AASSSKSS.....','...AASSSSSSs....','....ASSSSSS.....','......SSSS......'];
 const OT = ['....RRWWWRR.....','...RRRWWWRRR....','..SRRRWWWRRRS...','..SSRRWWWRRSS...'];
 const OTJ = ['..S.RRWWWRR.S...','..SRRRWWWRRRS...','...RRRWWWRRR....','....RRWWWRR.....'];
 const LS = ['....KKKKKKK.....','....KKK.KKK.....','....KKK.KKK.....','...OOO...OOO....','..OOOO...OOOO...'];
@@ -203,8 +210,40 @@ const CROW = [
 ];
 const LAMB = both(mk(['......WWWWW.....','...WWWWWWWWWW...','..WWWWWWWWWWKKK.','..WWWWWWWWWWKWK.','..WWWWWWWWWWKKK.','...WWWWWWWWWW...','...K.K...K.K....','...K.K...K.K....']));
 const KEY = mk(['.YYYY.........','YY..YY........','Y....YYYYYYYYY','YY..YY....Y.Y.','.YYYY.........']);
-const BYREK = mk(['....tttttttt....','..ttTTTTTTTTtt..','.tTTTttttttTTTt.','.tTTtTTTTTTtTTt.','.tTTtTttttTtTTt.','.tTTtTTTTTTtTTt.','.tTTTttttttTTTt.','..ttTTTTTTTTtt..','....tttttttt....']);
+const BYREK = mk(['tt............','tuTt..........','tuuTTt........','tTuuuTTt......','tTTTuuuTTtt...','tTTTTTuuuTTTt.','tnnNnnnnNnnnnt','tuuuuuuuuuuuut','tnNnnnnNnnnNnt','tTTTTTTTTTTTTt','.tttttttttttt.']);
+const PLIS = mk(['....WWWWWW....','..WWWWWWWWWW..','.WWWWWWWWWWWW.','.WWWWWWWWWWWW.','WWWWWWWWWWWWWW','WEEEEEEEEEEEEW','.EEEEEEEEEEEE.']);
+const CHEST = mk(['..hhhhhhhhhh..','.hHHHHHHHHHHh.','hHHHHHHHHHHHHh','hYYYYYYYYYYYYh','hHHHHHYYHHHHHh','hHHHHHYyHHHHHh','hHHHHHHHHHHHHh','hYYYYYYYYYYYYh','hHHHHHHHHHHHHh','hHHHHHHHHHHHHh','hhhhhhhhhhhhhh']);
+const CHEST_OPEN = mk(['hYYYYYYYYYYYYh','hhhhhhhhhhhhhh','..............','hYYYYYYYYYYYYh','hHHHHHHHHHHHHh','hHHHHHHHHHHHHh','hHHHHHHHHHHHHh','hYYYYYYYYYYYYh','hHHHHHHHHHHHHh','hHHHHHHHHHHHHh','hhhhhhhhhhhhhh']);
+const PIECE = mk(['KKKKKKKKKKKK','KRRRRRRRRRRK','KRRRKRRKRRRK','KRRRKKKKRRRK','KRKKKKKKKKRK','KRRKKKKKKRRK','KRRRRKKRRRRK','KRRRKRRKRRXK','KRRRRRRRRXXK','KKKKKKKKKKKK']);
 const OLIVE = mk(['........gG....','.......gGG....','......gG......','....KKKKKK....','...KLLLLLLK...','..KLLLLLWLLK..','..KLLLLLLWLK..','..KLLLLLLLLLK.','..KLLLLLLLLLK.','...KLLLLLLLLK.','....KLLLLLLK..','.....KKKKKK...']);
+const ITEM_SPR = { byrek: BYREK, olive: OLIVE, plis: PLIS };
+const FEATHER = mk(['.......KK.','......KhWK','.....KhhWK','....KhHWhK','....KhWHhK','...KhHWhK.','...KhWHhK.','..KhHWhK..','..KhWhhK..','.KhHWhK...','.KhWhK....','KhWhK.....','.KWK......','..W.......']);
+const HELMET = mk([
+  '........yy........',
+  '......yYYYYy......',
+  '..yy..yKYYKy..yy..',
+  '.y..y.yYYYYy.y..y.',
+  'y....yyYyyYyy....y',
+  'y.....QyYYyQ.....y',
+  '.y..QQQQyyQQQQ..y.',
+  '..yQQQQQQQQQQQQy..',
+  '..QQQQQQQQQQQQQQ..',
+  '.QQQQQQQQQQQQQQQQ.',
+  '.QQQVQQQQQQQQVQQQ.',
+  'QQQQVQQQQQQQQVQQQQ',
+  'QVVVVVVVVVVVVVVVVQ',
+  'QVyVVVyVVVVyVVVyVQ',
+  'VVVVVVVVVVVVVVVVVV',
+  'VV..............VV']);
+const FISH = [both(mk(['.....jjjj.....','...jjqqqqjj..j','..jqqqqqqqqjjj','.jqKqqqqqqqqjj','jqqqqqqqqqqqj.','.jQQQQQQQQQjjj','..jjQQQQQjj..j','....jjjjj.....'])),
+              both(mk(['.....jjjj.....','...jjqqqqjj...','..jqqqqqqqqj.j','.jqKqqqqqqqqjj','jqqqqqqqqqqqjj','.jQQQQQQQQQj.j','..jjQQQQQjj...','....jjjjj.....']))];
+const BALL = mk(['...KKKK...','.KKKKKKKK.','.KKVVKKKK.','KKVQVKKKKK','KKVVKKKKKK','KKKKKKKKKK','KKKKKKKKKK','.KKKKKKKK.','.KKKKKKKK.','...KKKK...']);
+const CANNON = both(mk([
+  '................','................','................',
+  '......KKKKKKKK..','KKKKKKVVVVVVVVK.','KVVVVVVVVVVVVVVK','KVQQVVVVVVVVVVVK','KVVVVVVVVVVVVVVK','KKKKKKVVVVVVVVK.','......KKKKKKKK..',
+  '.......hHHHHh...','......hHHhhHHh..','.....hHHhKKhHHh.','.....hHHhKKhHHh.','......hHHhhHHh..','.......hhhhhh...']));
+const ROCK = mk(['...KKKK...','.KKVVVVKK.','KVVQQVVVVK','KVQVVVVVVK','KVVVVVVKVK','KVVVVKVVVK','.KVVVVVVK.','..KKKKKK..']);
+
 const SHOT = mk(['.KKKK.','KLLLLK','KLlLLK','KLLLLK','KLLLLK','.KKKK.']);
 const FIRE = [mk(['..fFF...','.fFFFF..','fFFfFFF.','FFffFFFF','FFffFFFF','fFFfFFF.','.fFFFF..','..fFF...']), mk(['...FFf..','..FFFFf.','.FFFfFFf','FFFFffFF','FFFFffFF','.FFFfFFf','..FFFFf.','...FFf..'])];
 const EAGLE_HALF = ['.....KK....','....KKKK...','...KKKKK...','..KK.KKK...','......KKK..','K......KKK.','KK......KKK','KKK....KKKK','.KKK..KKKKK','K.KKKKKKKKK','KK.KKKKKKKK','.KK.KKKKKKK','..KK.KKKKKK','...KK.KKKKK','....K.KKKKK','......KKKKK','.......KKKK','......K.KKK','.....K..K.K','........K..'];
@@ -234,12 +273,16 @@ const KUCEDRA = both(mk([
 ]));
 
 /* ---------------- themes & tiles ---------------- */
-const T = { E:0, GROUND:1, BRICK:2, QCOIN:3, QPOW:4, USED:5, STONE:6, BUNKER:7, GATE:8, MULTI:9 };
+const T = { E:0, GROUND:1, BRICK:2, QCOIN:3, QPOW:4, USED:5, STONE:6, BUNKER:7, GATE:8, MULTI:9, HID_LIFE:10, HID_COIN:11, CRUMBLE:12, SPRING:13, CANNON:14 };
 const THEMES = {
-  beach:  { sky:['#5fbdf2','#d8f1ff'], ground:'#e3c374', groundTop:'#f7e2a6', groundDark:'#b99543', brick:'#c7663f', brickLine:'#6e341f', stone:'#b8a58a', stoneLight:'#e0d0b6', stoneDark:'#7d6b52', music:0 },
-  berat:  { sky:['#f08a4b','#fde2c0'], ground:'#8f8373', groundTop:'#6aa84f', groundDark:'#62584b', brick:'#b35c3b', brickLine:'#5e2e1c', stone:'#a39a8e', stoneLight:'#cfc6b8', stoneDark:'#6b6358', music:1 },
-  theth:  { sky:['#86b2dc','#eef6ff'], ground:'#666b73', groundTop:'#f4f8ff', groundDark:'#3f4248', brick:'#7b8794', brickLine:'#353c45', stone:'#9098a3', stoneLight:'#c3cad3', stoneDark:'#565d66', music:2 },
-  rozafa: { sky:['#1b1430','#74354f'], ground:'#57504a', groundTop:'#7c7268', groundDark:'#2e2925', brick:'#6e6259', brickLine:'#2a2420', stone:'#7d756c', stoneLight:'#a39a8f', stoneDark:'#443e38', music:3 }
+  vlore:   { sky:['#3aa6d8','#cdeefa'], ground:'#cdb58a', groundTop:'#efe3c4', groundDark:'#a08a60', brick:'#c9703f', brickLine:'#6e341f', stone:'#d8d0bf', stoneLight:'#f1ebdd', stoneDark:'#9d9481', plat:'#8b5a3c', music:'south' },
+  beach:   { sky:['#5fbdf2','#d8f1ff'], ground:'#e3c374', groundTop:'#f7e2a6', groundDark:'#b99543', brick:'#a86b3c', brickLine:'#5a3518', stone:'#b8a58a', stoneLight:'#e0d0b6', stoneDark:'#7d6b52', plat:'#8b5a3c', music:'coast' },
+  berat:   { sky:['#f08a4b','#fde2c0'], ground:'#8f8373', groundTop:'#6aa84f', groundDark:'#62584b', brick:'#b35c3b', brickLine:'#5e2e1c', stone:'#e8e0d2', stoneLight:'#fbf7ef', stoneDark:'#a79c8a', plat:'#7a4a2c', music:'iso' },
+  gjiro:   { sky:['#94bfdc','#f1eadb'], ground:'#8b8a84', groundTop:'#b2b0a7', groundDark:'#5d5c57', brick:'#86807a', brickLine:'#3d3a36', stone:'#b1aca2', stoneLight:'#d6d1c7', stoneDark:'#6d6961', plat:'#5d5c57', music:'iso2' },
+  butrint: { sky:['#f2b36b','#fdf0d6'], ground:'#b9a47c', groundTop:'#7aa04f', groundDark:'#877650', brick:'#b98a5a', brickLine:'#5e4630', stone:'#d6c8a8', stoneLight:'#efe5cf', stoneDark:'#998b6d', plat:'#8b5a3c', music:'mystic' },
+  kruje:   { sky:['#6d9ec9','#e7eef3'], ground:'#7b715f', groundTop:'#5f8a3e', groundDark:'#4e4739', brick:'#9b6a4b', brickLine:'#4a3121', stone:'#a79f90', stoneLight:'#cbc3b4', stoneDark:'#6a6356', plat:'#6a6356', music:'heroic' },
+  theth:   { sky:['#86b2dc','#eef6ff'], ground:'#666b73', groundTop:'#f4f8ff', groundDark:'#3f4248', brick:'#7b8794', brickLine:'#353c45', stone:'#9098a3', stoneLight:'#c3cad3', stoneDark:'#565d66', plat:'#5e3a24', music:'north' },
+  rozafa:  { sky:['#1b1430','#74354f'], ground:'#57504a', groundTop:'#7c7268', groundDark:'#2e2925', brick:'#6e6259', brickLine:'#2a2420', stone:'#7d756c', stoneLight:'#a39a8f', stoneDark:'#443e38', plat:'#443e38', music:'dark' }
 };
 function makeTiles(th) {
   const mkc = () => { const c = document.createElement('canvas'); c.width = 16; c.height = 16; return [c, c.getContext('2d')]; };
@@ -262,17 +305,19 @@ function makeTiles(th) {
   x.fillStyle = th.stoneDark; x.fillRect(0, 14, 16, 2); x.fillRect(14, 0, 2, 16); o.stone = c;
   [c, x] = mkc(); x.fillStyle = '#120d10'; x.fillRect(0, 0, 16, 16); x.fillStyle = '#80838b'; x.fillRect(2, 0, 2, 16); x.fillRect(7, 0, 2, 16); x.fillRect(12, 0, 2, 16); x.fillRect(0, 6, 16, 2);
   x.fillStyle = '#b5b8bf'; x.fillRect(2, 0, 1, 16); x.fillRect(7, 0, 1, 16); x.fillRect(12, 0, 1, 16); o.gate = c;
+  [c, x] = mkc(); x.drawImage(o.stone, 0, 0); x.fillStyle = th.stoneDark;
+  [[3,2,1,5],[4,6,3,1],[7,7,1,4],[10,3,1,4],[11,7,3,1],[2,11,4,1],[12,10,1,3]].forEach(r => x.fillRect(...r)); o.crumble = c;
   return o;
 }
 
 /* ---------------- level builder ---------------- */
 function mkB(w, theme) {
-  const L = { w, theme, t: new Uint8Array(w * ROWS), spawns: [], coins: [], deco: [], start: { x: 32 }, cps: [], goal: null, lambs: [], keys: [], multi: {}, gateX: null, arena: null, cage: null, aval: null };
+  const L = { w, theme, t: new Uint8Array(w * ROWS), spawns: [], coins: [], deco: [], start: { x: 32 }, cps: [], goal: null, lambs: [], keys: [], multi: {}, gateX: null, arena: null, cage: null, aval: null, chests: [], pieces: [], secretsTotal: 0, secretsFound: 0, feathers: [], plats: [], cannons: [], rockZones: [], noCoins: false, helmet: null };
   const set = (x, y, v) => { if (x >= 0 && x < w && y >= 0 && y < ROWS) L.t[y * w + x] = v; };
   const b = {
     L,
     ground(x0, x1, top = 10) { for (let x = x0; x <= x1; x++) for (let y = top; y < ROWS; y++) set(x, y, T.GROUND); return b; },
-    row(x, y, s) { const m = { B: T.BRICK, '?': T.QCOIN, P: T.QPOW, S: T.STONE, M: T.MULTI }; for (let i = 0; i < s.length; i++) { const v = m[s[i]]; if (v) set(x + i, y, v); if (v === T.MULTI) L.multi[(x + i) + ',' + y] = 6; } return b; },
+    row(x, y, s) { const m = { B: T.BRICK, '?': T.QCOIN, P: T.QPOW, S: T.STONE, M: T.MULTI, H: T.HID_LIFE, h: T.HID_COIN, C: T.CRUMBLE, J: T.SPRING }; for (let i = 0; i < s.length; i++) { const v = m[s[i]]; if (v) set(x + i, y, v); if (v === T.HID_LIFE || v === T.HID_COIN) L.secretsTotal++; if (v === T.MULTI) L.multi[(x + i) + ',' + y] = 6; } return b; },
     stairs(x, n, dir = 1, top = 10) { for (let i = 0; i < n; i++) { const cx = dir > 0 ? x + i : x + n - 1 - i; for (let k = 0; k <= i; k++) set(cx, top - 1 - k, T.STONE); } return b; },
     block(x0, y0, x1, y1, v = T.STONE) { for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) set(x, y, v); return b; },
     bunker(x, h = 2, top = 10) { for (let i = 0; i < 3; i++) for (let k = 0; k < h; k++) set(x + i, top - 1 - k, T.BUNKER); L.deco.push({ x: x * 16, y: (top - h) * 16, h }); return b; },
@@ -280,95 +325,165 @@ function mkB(w, theme) {
     arc(x, y, n) { for (let i = 0; i < n; i++) { const off = Math.round(Math.sin(i / (n - 1) * Math.PI) * 1.6); L.coins.push({ x: (x + i) * 16 + 3, y: (y - off) * 16 + 2, w: 10, h: 12, got: false }); } return b; },
     e(type, x, row = 9) { L.spawns.push({ type, x: x * 16, yb: (row + 1) * 16 }); return b; },
     lamb(x, row = 9) { L.lambs.push({ x: x * 16 + 1, y: (row + 1) * 16 - 8, w: 14, h: 8, got: false }); return b; },
+    chest(x, row) { L.chests.push({ x: x * 16 + 1, y: row * 16 + 5, w: 14, h: 11, got: false }); L.secretsTotal++; return b; },
+    piece(x, row) { L.pieces.push({ x: x * 16 + 2, y: row * 16 + 3, w: 12, h: 10, got: false }); return b; },
     key(x, row) { L.keys.push({ x: x * 16 + 1, y: row * 16 + 5, w: 14, h: 6, got: false }); return b; },
     cp(x) { L.cps.push({ x: x * 16, on: false }); return b; },
+    vcoins(x, y, n) { for (let i = 0; i < n; i++) L.coins.push({ x: x * 16 + 3, y: (y + i) * 16 + 2, w: 10, h: 12, got: false }); return b; },
+    feather(x, row) { L.feathers.push({ x: x * 16 + 3, y: row * 16 + 1, w: 10, h: 14, got: false }); return b; },
+    plat(x, row, axis, range, speed) { L.plats.push({ x0: x * 16, y0: row * 16, w: 48, h: 6, axis, range: range * 16, speed, x: x * 16, y: row * 16, dx: 0, dy: 0, t: 0 }); return b; },
+    cannon(x, row, dir, period, phase = 0) { set(x, row, T.CANNON); L.cannons.push({ tx: x, ty: row, dir, period, phase, t: phase }); return b; },
+    rocks(x0, x1, period) { L.rockZones.push({ x0: x0 * 16, x1: x1 * 16, period, t: 0 }); return b; },
+    fish(x, period, delay = 0) { L.spawns.push({ type: 'fish', x: x * 16, yb: VH + 20, period, delay }); return b; },
     goal(x) { L.goal = { x: x * 16 }; set(x, 9, T.STONE); return b; },
     gate(x) { b.block(x, 0, x, 5, T.STONE); for (let y = 6; y <= 9; y++) set(x, y, T.GATE); L.gateX = x; return b; }
   };
   return b;
 }
 
-function level1() {
-  const b = mkB(210, 'beach');
-  b.ground(0, 44).ground(47, 72).ground(76, 120).ground(123, 150).ground(154, 209);
-  b.coins(6, 8, 3).row(12, 6, '?').row(17, 6, 'B?B?B').row(19, 2, '?').e('beetle', 22);
-  b.bunker(26, 2).arc(29, 7, 4).e('beetle', 31).bunker(34, 3).bunker(40, 2);
-  b.arc(44, 7, 4);
-  b.e('beetle', 52).e('beetle', 54).row(58, 6, 'BMBB').coins(58, 4, 4);
-  b.arc(72, 6, 5);
-  b.row(80, 6, '???').e('beetle', 84).row(85, 3, 'BBBBBB').coins(85, 2, 6).e('beetle', 89, 2);
-  b.stairs(95, 4, 1).stairs(99, 4, -1).arc(96, 4, 6);
-  b.cp(106);
-  b.bunker(110, 2).e('beetle', 114).e('beetle', 116).bunker(117, 2);
-  b.row(127, 6, 'B?BPB?B').e('beetle', 131).coins(133, 9, 5);
-  b.row(140, 7, 'SSSS').coins(140, 6, 4).e('beetle', 141, 6);
-  b.arc(150, 6, 5);
-  b.bunker(157, 3).e('beetle', 161).bunker(164, 2).e('beetle', 168).e('beetle', 170);
-  b.row(174, 6, '?M?');
-  b.stairs(181, 6, 1).goal(192);
+function lvVlore() {
+  const b = mkB(232, 'vlore');
+  b.ground(0, 26).ground(27, 40, 8).ground(45, 72).ground(78, 88).ground(89, 101, 11).ground(102, 120).ground(128, 160).ground(188, 231).ground(200, 208, 8);
+  b.arc(5, 7, 5).row(10, 7, 'P').vcoins(16, 5, 3).row(19, 6, 'h').e('beetle', 22);
+  b.coins(28, 6, 3).e('beetle', 31, 7).e('beetle', 34, 7).block(37, 5, 37, 7, T.BRICK).feather(37, 4);
+  b.plat(41, 9, 'x', 2, 0.6);
+  b.e('crow', 50, 5).e('crow', 57, 3).row(62, 9, 'J').row(64, 3, 'SSSSSSS').coins(64, 2, 4).chest(69, 2).e('hedgehog', 67);
+  b.plat(73, 6, 'y', 3, 0.5);
+  b.e('beetle', 83).row(85, 6, '?');
+  b.row(91, 8, 'BBBBBBBB').e('hedgehog', 92, 10).e('hedgehog', 99, 10).feather(95, 10);
+  b.cp(104).arc(106, 7, 5).e('beetle', 112).e('crow', 116, 4);
+  b.row(121, 10, 'CCCCCCC');
+  b.bunker(132, 2).row(138, 7, 'B').row(139, 6, 'B').row(140, 5, '?').row(141, 6, 'B').row(142, 7, 'B').e('hedgehog', 145).row(150, 6, 'P').e('beetle', 154);
+  b.block(163, 8, 165, 8).block(169, 6, 171, 6).feather(170, 5).block(175, 8, 176, 8).row(175, 4, 'H').plat(179, 6, 'x', 3, 0.7).block(185, 7, 187, 7).e('crow', 172, 3).e('crow', 181, 4);
+  b.e('beetle', 195).goal(216);
   return b.L;
 }
-function level2() {
-  const b = mkB(214, 'berat');
-  b.ground(0, 38).ground(42, 80).ground(84, 86).ground(90, 140).ground(144, 213);
-  b.coins(7, 8, 3).row(12, 6, '?B?').block(19, 8, 20, 9).row(22, 6, 'BBBB').lamb(23, 5).coins(22, 4, 4);
-  b.e('hedgehog', 30).bunker(33, 2).arc(38, 6, 5);
-  b.e('crow', 50, 5).e('beetle', 55).e('beetle', 57).row(60, 6, '?B?B?').row(62, 2, 'P');
-  b.bunker(67, 3).e('hedgehog', 73).e('crow', 78, 4);
-  b.arc(80, 6, 4).lamb(85, 9).arc(86, 6, 4);
-  b.bunker(93, 2).e('beetle', 98).e('crow', 102, 5).cp(104);
-  b.row(108, 7, 'SSSSSS').e('hedgehog', 111, 6).coins(108, 5, 6);
-  b.stairs(117, 3, 1).block(120, 7, 125, 9).e('beetle', 123, 6).stairs(126, 3, -1).arc(120, 5, 6);
-  b.e('crow', 135, 4).coins(133, 9, 4);
-  b.arc(140, 6, 5);
-  b.stairs(146, 4, 1).block(150, 4, 152, 4).lamb(151, 3).e('crow', 156, 3);
-  b.row(160, 6, 'B?BPB').e('hedgehog', 166).e('beetle', 170).e('beetle', 172).e('crow', 176, 4);
-  b.bunker(180, 2).bunker(186, 3).coins(183, 7, 3);
-  b.stairs(192, 5, 1).goal(201);
+function lvDurres() {
+  const b = mkB(250, 'beach');
+  b.ground(0, 18).ground(19, 26, 9).ground(27, 34, 8).ground(35, 40, 9).ground(41, 70);
+  b.chest(0, 9).arc(4, 7, 4).row(12, 7, 'P').e('beetle', 16).arc(23, 5, 8).e('beetle', 30, 7);
+  b.bunker(44, 2).e('beetle', 48).bunker(50, 3).e('hedgehog', 54).bunker(56, 2).e('crow', 58, 3).e('beetle', 60).bunker(62, 4).feather(63, 5);
+  b.row(71, 9, 'BBBBBB').row(80, 9, 'CCCCC').row(87, 9, 'BBBBBBBBBB').e('beetle', 90, 8).coins(81, 7, 4);
+  b.ground(97, 99, 8).ground(100, 102, 9).ground(103, 113, 11).ground(114, 116, 9).ground(117, 119, 8).ground(120, 150);
+  b.e('hedgehog', 106, 10).e('beetle', 110, 10).feather(108, 7);
+  b.cp(121).block(127, 8, 128, 9).block(129, 6, 129, 9).block(130, 4, 133, 9).coins(130, 3, 4).row(132, 0, 'H');
+  b.e('crow', 140, 4).e('beetle', 144).row(146, 7, 'P').row(150, 9, 'J');
+  b.ground(156, 249).bunker(160, 2).e('beetle', 163).bunker(164, 3).bunker(168, 2).row(172, 7, 'SS').row(175, 4, 'BBB').feather(176, 3);
+  b.e('hedgehog', 182).e('crow', 186, 5).row(190, 6, 'h').e('beetle', 210).e('beetle', 213).arc(218, 7, 5).goal(232);
   return b.L;
 }
-function level3() {
-  const b = mkB(232, 'theth');
-  b.ground(0, 50).ground(53, 95).ground(98, 140).ground(143, 175).ground(178, 231);
-  b.coins(8, 8, 4).bunker(18, 2).row(24, 6, '?P?').e('hedgehog', 32).stairs(38, 3, 1).stairs(41, 3, -1).coins(38, 5, 6);
-  b.arc(50, 6, 4);
-  b.e('crow', 62, 5).e('beetle', 66).bunker(70, 2).row(76, 7, 'SSS').coins(76, 6, 3).e('hedgehog', 84).bunker(89, 3);
-  b.arc(95, 6, 4);
-  b.cp(103);
-  b.row(108, 6, 'B?B').e('beetle', 112).e('beetle', 114).e('crow', 120, 4);
-  b.stairs(124, 4, 1).block(128, 6, 131, 9).coins(128, 4, 4);
-  b.arc(140, 6, 4);
-  b.e('hedgehog', 150).bunker(156, 2).e('crow', 164, 5).row(166, 6, '?M?');
-  b.arc(175, 6, 4);
-  b.e('beetle', 184).e('hedgehog', 190).stairs(196, 6, 1).goal(208);
+function lvBerat() {
+  const b = mkB(250, 'berat');
+  b.ground(0, 30).ground(41, 120).ground(136, 183).ground(188, 249);
+  b.arc(6, 7, 4).row(10, 7, 'P').block(14, 7, 17, 9).row(18, 7, 'CCC').block(21, 5, 24, 9).e('beetle', 22, 4).row(23, 1, 'h').block(27, 7, 30, 9);
+  b.plat(31, 8, 'x', 3, 0.6).plat(36, 7, 'x', 3, 0.7);
+  b.block(44, 8, 47, 9).block(48, 6, 51, 9).e('beetle', 49, 5).block(52, 4, 55, 9).feather(54, 3).block(56, 6, 58, 9).coins(56, 5, 3).e('hedgehog', 60).e('crow', 64, 4);
+  b.row(65, 9, 'J').block(66, 7, 68, 9).block(70, 3, 78, 6).coins(71, 8, 6).e('beetle', 74).e('beetle', 76).coins(71, 2, 6).chest(77, 2);
+  b.cp(84).e('beetle', 90).e('crow', 96, 5).row(100, 6, '?').row(103, 4, '?').row(106, 6, 'P').e('hedgehog', 110).e('beetle', 116);
+  b.row(121, 9, 'CCC').row(125, 8, 'CCC').row(129, 7, 'CCC').feather(130, 5).row(133, 8, 'CC');
+  b.e('hedgehog', 140).e('beetle', 146).e('beetle', 149).row(152, 7, '?').row(154, 5, 'P').row(156, 7, '?').e('crow', 160, 5).row(165, 6, 'H');
+  b.block(168, 7, 170, 9).block(172, 5, 175, 9).row(176, 5, 'CCC').block(179, 5, 182, 9).feather(181, 4);
+  b.e('beetle', 192).e('hedgehog', 200).e('crow', 208, 4).arc(212, 7, 5).goal(230);
+  return b.L;
+}
+function lvGjiro() {
+  const b = mkB(262, 'gjiro'); b.L.noCoins = true;
+  b.ground(0, 24).ground(25, 34, 8).ground(35, 44, 6).ground(45, 56, 8).ground(57, 87).ground(88, 95, 8).ground(96, 100, 6).ground(105, 120, 6).ground(121, 127).ground(128, 140, 11).ground(141, 261);
+  b.row(8, 7, 'P').e('beetle', 14).e('hedgehog', 20).e('beetle', 30, 7).cannon(44, 5, -1, 150);
+  b.e('hedgehog', 50, 7).e('beetle', 58).e('beetle', 60).block(62, 8, 63, 9).block(64, 5, 68, 9).feather(66, 4);
+  b.cannon(80, 9, -1, 160).e('crow', 84, 4).e('hedgehog', 92, 7);
+  b.row(101, 6, 'CCCC').cp(108).e('beetle', 110, 5).e('hedgehog', 115, 5).row(112, 1, 'H').cannon(120, 5, -1, 140);
+  b.row(129, 8, 'BBBBBBBBBBB').e('hedgehog', 131, 10).e('hedgehog', 137, 10).feather(134, 10);
+  b.e('beetle', 146).block(152, 8, 153, 9).cannon(156, 9, -1, 120).block(156, 7, 156, 8).cannon(156, 6, -1, 120, 60);
+  b.e('beetle', 170).row(170, 6, 'H').e('crow', 176, 5).row(180, 7, 'CCCC').feather(182, 5);
+  b.row(194, 9, 'J').block(196, 4, 198, 9).chest(197, 3);
+  b.e('hedgehog', 210).e('beetle', 216).e('crow', 222, 4).cannon(230, 9, -1, 150).goal(244);
+  return b.L;
+}
+function lvButrint() {
+  const b = mkB(300, 'butrint');
+  b.ground(0, 20).ground(45, 80).ground(119, 210).ground(226, 299);
+  b.arc(5, 7, 5).row(12, 7, 'P').e('beetle', 17);
+  [[23, 8], [26, 6], [29, 7], [32, 5], [35, 7], [38, 6], [41, 8]].forEach(([x, t]) => b.block(x, t, x, 11));
+  b.feather(32, 4).fish(24, 110, 0).fish(30, 130, 40).fish(36, 90, 70).fish(43, 120, 20);
+  b.e('hedgehog', 50).e('beetle', 55).e('beetle', 58).row(60, 6, '?').row(62, 4, '?').row(64, 6, '?').row(62, 1, 'h').cp(70).e('crow', 75, 4);
+  b.plat(81, 9, 'x', 4, 0.6).plat(90, 8, 'x', 4, 0.8).plat(100, 9, 'x', 4, 0.7).plat(110, 8, 'x', 4, 0.9).feather(95, 5).fish(88, 100, 30).fish(98, 120, 0).fish(108, 90, 60).e('crow', 104, 3);
+  b.block(125, 7, 130, 9).block(126, 3, 126, 6).block(128, 3, 128, 6).row(125, 2, 'SSSSS').row(130, 6, 'J').chest(127, 1);
+  b.e('beetle', 138).e('hedgehog', 145).e('crow', 150, 4).row(154, 8, 'CC').row(156, 6, 'CC').row(158, 4, 'CC').feather(159, 3);
+  b.cp(172).e('beetle', 180).e('beetle', 183).e('hedgehog', 192).e('crow', 198, 5).arc(200, 7, 6);
+  b.row(211, 10, 'CCCCCCCCCCCCCCC');
+  b.e('beetle', 232).e('beetle', 235).e('crow', 240, 5).e('hedgehog', 248).row(252, 6, 'H');
+  b.block(262, 2, 263, 7).e('beetle', 266).goal(282);
+  return b.L;
+}
+function lvKruje() {
+  const b = mkB(320, 'kruje');
+  b.ground(0, 110).ground(123, 149).ground(161, 319);
+  b.row(10, 7, 'P').e('beetle', 16).e('beetle', 19).arc(22, 7, 5).block(26, 8, 28, 9).e('hedgehog', 30).block(31, 8, 33, 9);
+  b.rocks(34, 58, 70).e('crow', 45, 4).row(48, 6, '?').row(52, 6, 'P').feather(56, 9);
+  b.plat(59, 3, 'y', 6, 0.5).block(62, 2, 70, 9).chest(69, 1).e('crow', 75, 1);
+  b.e('beetle', 76).block(81, 8, 82, 9).cannon(84, 9, -1, 110).block(84, 8, 84, 8).cannon(84, 7, -1, 110, 55).cp(90).row(92, 6, 'h').row(96, 9, 'J').row(98, 2, 'SSSSSS').feather(102, 1).e('hedgehog', 104);
+  b.plat(112, 4, 'y', 5, 0.6).plat(117, 4, 'y', 5, 0.85).rocks(111, 122, 90);
+  b.e('hedgehog', 128).e('beetle', 134).e('beetle', 137).e('crow', 142, 5);
+  b.row(150, 10, 'CCCCCCCCCCC').cannon(172, 9, -1, 100);
+  b.row(176, 7, 'CC').row(178, 5, 'C').block(180, 4, 183, 9).feather(181, 3).cp(190);
+  b.rocks(205, 240, 55).e('beetle', 210).e('beetle', 220).e('hedgehog', 230).row(215, 6, 'H');
+  b.e('crow', 250, 4).e('crow', 258, 3).row(254, 6, '?').row(256, 6, 'P').cannon(270, 9, -1, 90).e('beetle', 278).arc(282, 7, 5).goal(296);
+  return b.L;
+}
+function lvTheth() {
+  const b = mkB(262, 'theth');
+  b.ground(0, 40).ground(44, 70).ground(81, 150).ground(155, 261);
+  b.arc(14, 7, 5).row(10, 7, 'P').e('beetle', 22).e('crow', 32, 5);
+  b.block(50, 8, 51, 9).e('hedgehog', 55).block(60, 7, 61, 9).feather(61, 6).e('beetle', 66);
+  b.row(71, 10, 'CCCCCCCCCC');
+  b.e('crow', 90, 5).row(95, 6, '?').row(98, 6, 'P').row(97, 2, 'h').cp(103).row(108, 9, 'J').block(111, 3, 114, 9).feather(113, 2);
+  b.e('beetle', 120).e('beetle', 124).e('hedgehog', 132).row(140, 6, 'H').e('crow', 144, 4).plat(151, 8, 'x', 2, 1.0);
+  b.block(158, 8, 158, 9).row(160, 6, 'SSSSSSSSSS').e('beetle', 163).e('beetle', 167).chest(165, 5);
+  b.row(180, 7, 'CC').row(183, 5, 'CCC').feather(185, 4).e('hedgehog', 192).e('crow', 210, 4).arc(214, 7, 5).goal(232);
   b.L.aval = { speed: 1.05 };
   return b.L;
 }
-function level4() {
-  const b = mkB(200, 'rozafa');
-  b.ground(0, 40).ground(44, 70).ground(75, 110).ground(114, 150).ground(154, 199);
-  b.coins(6, 8, 3).row(12, 6, '?P?').e('beetle', 18).e('hedgehog', 22).bunker(26, 2);
-  b.row(32, 6, 'BBBBB').key(34, 4).row(35, 2, '?');
-  b.arc(40, 6, 5);
-  b.e('crow', 48, 5).e('beetle', 52).e('beetle', 54).stairs(58, 4, 1).block(62, 6, 64, 9).e('hedgehog', 63, 5).stairs(65, 4, -1);
-  b.row(72, 7, 'SS').key(72, 5);
-  b.e('crow', 80, 4).row(84, 6, '?B?B?').e('beetle', 88).e('beetle', 90).bunker(94, 3).e('hedgehog', 100).cp(104);
-  b.arc(110, 6, 5);
-  b.row(117, 7, 'SSSS').row(123, 4, 'SSSS').key(125, 2).e('crow', 121, 3).e('crow', 130, 5);
-  b.e('hedgehog', 134).e('beetle', 138).e('beetle', 140).row(144, 6, 'B?BPB');
-  b.arc(150, 6, 5);
-  b.e('hedgehog', 157).cp(161).gate(168).row(180, 6, 'P');
-  b.block(191, 0, 191, 9);
+function lvRozafa() {
+  const b = mkB(204, 'rozafa');
+  b.ground(0, 29).ground(30, 40, 8).ground(41, 55, 6).ground(56, 80).ground(91, 203);
+  b.chest(0, 9).arc(4, 7, 4).row(10, 7, 'P').row(10, 3, 'H').e('beetle', 18).e('hedgehog', 24);
+  b.e('beetle', 46, 5).feather(50, 3).cannon(55, 5, -1, 120);
+  b.rocks(60, 80, 80).e('crow', 66, 4).feather(75, 9);
+  b.plat(82, 4, 'y', 5, 0.6).plat(86, 6, 'y', 4, 0.9);
+  b.cp(95).e('beetle', 100).e('beetle', 103).block(112, 8, 113, 9).cannon(115, 9, -1, 100).block(115, 7, 115, 8).cannon(115, 6, -1, 100, 50);
+  b.row(126, 9, 'J').block(128, 3, 131, 9).feather(130, 2).e('hedgehog', 140).e('crow', 148, 4);
+  b.cp(160).gate(168).row(180, 6, 'P');
+  b.block(191, 0, 191, 9).block(198, 9, 199, 9);
   b.L.arena = { x0: 176, x1: 191, locked: false };
   b.L.cage = { x: 194 * 16, y: 10 * 16 - 32, w: 32, h: 32 };
+  b.L.helmet = { x: 198 * 16 + 7, y: 9 * 16 - 16 };
   return b.L;
 }
 
 const LEVELS = [
-  { name: 'Plazhi i Durrësit', en: 'Rëra, deti dhe bunkerët', short: 'DURRËS', kind: 'leke', need: 40, mission: 'Mblidh 40 lekë, pastaj kap flamurin.', build: level1 },
-  { name: 'Berati', en: 'Qyteti i një mbi një dritareve', short: 'BERAT', kind: 'lambs', need: 3, mission: 'Gjej dhe shpëto 3 qengjat e humbur, pastaj kap flamurin.', build: level2 },
-  { name: 'Thethi', en: 'Bjeshkët e Nemuna', short: 'THETH', kind: 'avalanche', mission: 'Po vjen orteku! Vrapo te flamuri para se të të mbulojë.', build: level3 },
-  { name: 'Kalaja e Rozafës', en: 'Shkodër', short: 'ROZAFA', kind: 'boss', need: 3, mission: 'Gjej 3 çelësat e portës, mund Kuçedrën dhe liro shqiponjën dykrenore.', build: level4 }
+  { name: 'Vlora', en: 'Qyteti i Flamurit', short: 'VLORË', kind: 'timer', time: 150, mission: 'Gjej 3 pendët e shqiponjës dhe arri te flamuri brenda 150 sekondave.', build: lvVlore },
+  { name: 'Durrës', en: 'Dunat, bunkerët dhe amfiteatri', short: 'DURRËS', kind: 'normal', mission: 'Gjej 3 pendët mes dunave, bunkerëve dhe skelës së vjetër.', build: lvDurres },
+  { name: 'Berati', en: 'Qyteti i një mbi një dritareve', short: 'BERAT', kind: 'normal', mission: 'Gjej 3 pendët mbi çatitë. Kujdes: disa gurë shemben nën këmbë.', build: lvBerat },
+  { name: 'Gjirokastra', en: 'Qyteti i gurtë', short: 'GJIRO', kind: 'normal', mission: 'Këtu nuk ka asnjë lek. Gjej 3 pendët dhe ruhu nga topat e kalasë.', build: lvGjiro },
+  { name: 'Butrinti', en: 'Rrënojat e lashta dhe laguna', short: 'BUTRINT', kind: 'normal', mission: 'Gjej 3 pendët mes kolonave dhe trapeve. Peshqit e lagunës kërcejnë lart.', build: lvButrint },
+  { name: 'Kruja', en: 'Kalaja e Skënderbeut', short: 'KRUJË', kind: 'normal', mission: 'Gjej 3 pendët. Gurët bien nga muret dhe topat nuk flenë kurrë.', build: lvKruje },
+  { name: 'Thethi', en: 'Bjeshkët e Nemuna', short: 'THETH', kind: 'avalanche', mission: 'Po vjen orteku! Gjej 3 pendët dhe vrapo te flamuri para se të të mbulojë.', build: lvTheth },
+  { name: 'Kalaja e Rozafës', en: 'Shkodër', short: 'ROZAFA', kind: 'boss', mission: 'Vetëm 3 pendët hapin portën. Mund Kuçedrën, liro shqiponjën dhe merr përkrenaren.', build: lvRozafa }
+];
+const NLV = LEVELS.length;
+const STORY_START = [
+  { art: 'eagle', text: 'Çdo mëngjes, kur dielli dilte mbi Llogara, shqiponja dykrenore zbriste nga flamuri dhe numëronte gjithçka: malet, lumenjtë, kështjellat, madje edhe dhitë e Thethit. Pastaj kthehej në vend, e kënaqur. Asgjë nuk kishte munguar ndonjëherë.' },
+  { art: 'kucedra', text: 'Deri në natën e stuhisë. Kuçedra, e xhelozuar se njerëzit këndonin për shqiponjën e jo për të, doli nga liqeni i Shkodrës me nëntë gjuhë zjarri. Rrëmbeu shqiponjën dhe, për ta bërë punën më keq, vodhi edhe përkrenaren e Skënderbeut nga Kruja.' },
+  { art: 'feather', text: 'Shqiponja nuk u dorëzua. Luftoi gjithë rrugës dhe pendët i ranë një nga një mbi qytete, rrënoja dhe bjeshkë. Plakat e Beratit thonë se pa ato pendë, kafazi i Kuçedrës nuk hapet kurrë.' },
+  { art: 'orik', text: 'Në Vlorë, Oriku dhjetëvjeçar, flokëverdhë e i paaftë të rrinte ulur, gjeti një pendë të zezë në ballkonin e gjyshes. Ishte ende e ngrohtë, dhe drejtohej nga veriu.' },
+  { art: 'byrek', text: 'Gjyshja i vuri plisin e bardhë në kokë, i futi një byrek në trastë dhe i tha: “Tre pendë në çdo qytet, bir. Mos u fut në bunkerë të panjohur, mos u zër me dhitë dhe mos i numëro lekët para se të mbarosh punën.”' }
+];
+const STORY_END = [
+  { art: 'helmet', text: 'Kuçedra ra në humnerën nën kala. Kafazi u thye, dhe pas tij shkëlqeu diçka e njohur: përkrenarja e Skënderbeut, me kokën e dhisë, e paprekur.' },
+  { art: 'eagle', text: 'Shqiponja u ngrit mbi Shkodër dhe me krah i vuri Orikut përkrenaren në kokë. Pastaj fluturoi mbi Theth, Krujë, Butrint, Gjirokastër, Berat e Durrës, dhe u ul në mes të flamurit në Vlorë.' },
+  { art: 'byrek', text: 'Oriku u kthye në shtëpi me xhepat plot lekë dhe me një përkrenare që i binte mbi sy. Gjyshja e priste me një tavë byrek. Këtë herë hëngri dy copë.' },
+  { art: 'kucedra', text: 'FUND. Ose ndoshta jo: thellë në liqenin e Shkodrës, dikush po numëronte nëntë gjuhë zjarri.' }
 ];
 
 /* ---------------- audio ---------------- */
@@ -379,7 +494,7 @@ function audioInit() {
   if (!AC) return;
   try {
     ac = new AC(); master = ac.createGain(); master.gain.value = save.muted ? 0 : 0.55; master.connect(ac.destination);
-    musicGain = ac.createGain(); musicGain.gain.value = 0.2; musicGain.connect(master);
+    musicGain = ac.createGain(); musicGain.gain.value = 0.32; musicGain.connect(master);
     sfxGain = ac.createGain(); sfxGain.gain.value = 0.55; sfxGain.connect(master);
   } catch (e) { ac = null; }
 }
@@ -422,18 +537,81 @@ const SFX = {
   clear: () => arp([60, 64, 67, 72, 67, 72, 76, 79], 0.1, 'square', 0.15),
   one: () => arp([76, 79, 88, 84, 86, 91], 0.08, 'square', 0.13),
   win: () => arp([67, 72, 76, 79, 76, 79, 84, 84, 86, 88, 91], 0.12, 'square', 0.15),
-  deny: () => tone(160, 0.18, 'square', 0.18, 0.8)
+  deny: () => tone(160, 0.18, 'square', 0.18, 0.8),
+  feather: () => arp([74, 79, 83, 86, 91], 0.05, 'triangle', 0.22),
+  spring: () => tone(180, 0.25, 'triangle', 0.4, 3.2),
+  boom: () => { noise(0.25, 0.3); tone(90, 0.25, 'sawtooth', 0.18, 0.5); },
+  splash: () => noise(0.2, 0.14),
+  crack: () => { noise(0.12, 0.18); tone(220, 0.08, 'square', 0.08, 0.6); },
+  rock: () => { noise(0.2, 0.22); tone(110, 0.15, 'triangle', 0.3, 0.6); }
 };
 function sfx(n) { if (ac && SFX[n]) try { SFX[n](); } catch (e) {} }
 
-// original chiptune loops (1 step = an eighth note)
+// Albanian-style flute (fyell) over an iso drone and a frame drum. Tokens: note, '-' hold, '.' rest, '~' ornament.
+const NOTE_BASE = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+function parseTok(t) {
+  if (t === '-' || t === '.') return t;
+  const m = /^(~?)([A-G])([#b]?)(-?\d)$/.exec(t); if (!m) return '.';
+  return { orn: !!m[1], n: 12 * (+m[4] + 1) + NOTE_BASE[m[2]] + (m[3] === '#' ? 1 : m[3] === 'b' ? -1 : 0) };
+}
+function mkTrack(bpm, mel, drone, drum) { return { bpm, mel: mel.split(/\s+/).filter(x => x && x !== '|').map(parseTok), drone: drone.split(/\s+/).map(parseTok), drum }; }
 const TRACKS = {
-  0: { bpm: 150, mel: [76,0,79,76, 74,72,74,0, 76,79,81,79, 76,74,72,0, 74,0,76,74, 72,69,72,0, 67,69,72,74, 76,74,72,0], bass: [48,0,55,0, 53,0,55,0, 48,0,55,0, 53,0,55,0, 50,0,57,0, 53,0,55,0, 48,0,55,0, 43,0,47,0] },
-  1: { bpm: 132, mel: [69,72,76,74, 72,71,69,0, 71,72,74,76, 77,76,74,0, 76,77,76,74, 72,71,72,74, 71,68,71,72, 69,0,69,0], bass: [45,0,52,0, 45,0,52,0, 43,0,50,0, 41,0,48,0, 41,0,48,0, 45,0,52,0, 40,0,47,0, 45,0,40,0] },
-  2: { bpm: 176, mel: [81,79,81,76, 81,79,81,76, 79,77,79,74, 79,77,79,74, 77,76,77,72, 77,76,77,72, 76,74,72,71, 69,71,72,76], bass: [45,57,45,57, 45,57,45,57, 43,55,43,55, 43,55,43,55, 41,53,41,53, 41,53,41,53, 40,52,40,52, 45,57,40,52] },
-  3: { bpm: 118, mel: [62,0,65,0, 69,0,68,67, 65,0,62,0, 61,0,62,0, 62,0,65,0, 70,0,69,67, 65,64,62,61, 62,0,0,0], bass: [38,0,45,0, 38,0,45,0, 34,0,41,0, 33,0,40,0, 38,0,45,0, 34,0,41,0, 33,0,40,0, 38,0,38,0] },
-  boss: { bpm: 172, mel: [62,65,69,65, 62,65,69,70, 69,65,62,61, 62,0,57,0, 62,65,69,65, 70,69,67,65, 64,61,57,61, 62,0,62,0], bass: [38,38,50,38, 38,38,50,38, 34,34,46,34, 33,33,45,33, 38,38,50,38, 34,34,46,34, 33,33,45,33, 38,50,38,50] }
+  south: mkTrack(150, 'E5 - ~D5 C5 D5 - E5 G5 | A5 - G5 E5 ~D5 - C5 - | D5 E5 G5 E5 D5 C5 A4 - | C5 - D5 - E5 - - . | E5 - ~D5 C5 D5 - E5 G5 | A5 - C6 A5 G5 E5 D5 - | E5 G5 E5 D5 C5 - D5 C5 | A4 - - - - - . .', 'A2 A2 G2 A2 A2 A2 G2 A2', 'D..tD.t.'),
+  coast: mkTrack(144, 'D5 - E5 G5 A5 - G5 E5 | D5 - B4 - ~D5 - - . | E5 - G5 A5 B5 - A5 G5 | A5 - ~G5 E5 G5 - - . | B5 - A5 G5 E5 - D5 E5 | G5 - E5 D5 B4 - A4 B4 | D5 E5 G5 E5 D5 - B4 A4 | G4 - - - - . . .', 'G2 G2 D2 G2 G2 G2 D2 G2', 'D.tD.tt.'),
+  iso: mkTrack(116, 'B4 - - A4 ~B4 - D5 - | B4 A4 G4 - A4 - - . | G4 A4 B4 - D5 - E5 - | D5 B4 ~A4 - G4 - E4 - | E4 - G4 A4 B4 - - A4 | B4 D5 E5 - D5 B4 A4 - | G4 - A4 B4 ~A4 G4 E4 - | E4 - - - - - . .', 'E2', 'D...t...'),
+  iso2: mkTrack(100, 'E5 - - D5 ~E5 - G5 - | E5 D5 B4 - D5 - - . | B4 D5 E5 - G5 - A5 - | G5 E5 ~D5 - B4 - A4 - | A4 - B4 D5 E5 - - D5 | E5 G5 A5 - G5 E5 D5 - | B4 - D5 E5 ~D5 B4 A4 - | A4 - - - - - . .', 'A2 A2 A2 E2', 'D...t.t.'),
+  mystic: mkTrack(124, 'D5 - Eb5 F#5 G5 - F#5 Eb5 | D5 - - . A4 Bb4 C5 D5 | Eb5 D5 C5 Bb4 A4 - G4 A4 | Bb4 A4 G4 F#4 G4 - - . | G4 A4 Bb4 C5 D5 - Eb5 D5 | F#5 - G5 F#5 Eb5 D5 C5 - | Bb4 C5 D5 Eb5 D5 C5 Bb4 A4 | D5 - - - - . . .', 'D2 D2 G2 D2 D2 D2 G2 D2', 'D.t.D.tt'),
+  heroic: mkTrack(140, 'D5 - A4 D5 F5 - E5 D5 | C5 D5 E5 - A4 - - . | F5 - G5 A5 G5 F5 E5 D5 | E5 - C5 - D5 - - . | A5 - G5 F5 G5 - A5 C6 | A5 G5 F5 E5 F5 - D5 - | C5 D5 E5 F5 E5 D5 C5 A4 | D5 - - - D5 . . .', 'D2 C2 D2 C2 D2 C2 A1 D2', 'D.tDD.t.'),
+  north: mkTrack(172, 'G5 A5 G5 F5 D5 - F5 G5 | A5 C6 A5 G5 F5 - D5 - | C5 D5 F5 G5 A5 G5 F5 D5 | G5 - - . D5 - G5 - | F5 G5 A5 - G5 F5 D5 C5 | D5 F5 G5 - A5 - C6 - | A5 G5 F5 D5 C5 D5 F5 D5 | G4 - G5 - G4 . . .', 'G2 G2 F2 G2 G2 C2 F2 G2', 'DtD.DtDt'),
+  dark: mkTrack(112, 'A4 - C5 - E5 - D5 C5 | B4 - G#4 - A4 - - . | C5 D5 E5 F5 E5 - D5 C5 | B4 C5 D5 - E5 - - . | F5 - E5 D5 C5 - B4 A4 | G#4 A4 B4 C5 B4 - A4 G#4 | A4 - C5 E5 A5 - G#5 E5 | A5 - - - - . . .', 'A2 A2 E2 E2 A2 A2 E2 A2', 'D...D.t.'),
+  boss: mkTrack(168, 'A4 Bb4 C#5 D5 E5 - D5 C#5 | Bb4 A4 Bb4 C#5 A4 - - . | E5 F5 E5 D5 C#5 D5 Bb4 A4 | G4 A4 Bb4 G4 A4 - - . | A5 - G5 F5 E5 F5 E5 D5 | C#5 D5 E5 - A4 - - . | Bb4 C#5 D5 E5 F5 E5 D5 C#5 | D5 C#5 Bb4 C#5 A4 - A4 .', 'A2', 'DtDtDttt')
 };
+let noiseBuf = null;
+function getNoise() {
+  if (!noiseBuf) { const len = ac.sampleRate * 2; noiseBuf = ac.createBuffer(1, len, ac.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1; }
+  return noiseBuf;
+}
+function flute(freq, when, dur, vol, orn) {
+  const t = ac.currentTime + Math.max(0, when), end = t + dur + 0.06;
+  const o = ac.createOscillator(), o2 = ac.createOscillator(), g = ac.createGain(), g2 = ac.createGain();
+  o.type = 'sine'; o2.type = 'triangle';
+  o.frequency.setValueAtTime(orn ? freq * 1.1225 : freq, t); o2.frequency.setValueAtTime(orn ? freq * 2.245 : freq * 2, t);
+  if (orn) { o.frequency.setValueAtTime(freq, t + 0.05); o2.frequency.setValueAtTime(freq * 2, t + 0.05); }
+  const lfo = ac.createOscillator(), lg = ac.createGain(), lg2 = ac.createGain(); lfo.frequency.value = 5.4;
+  lg.gain.setValueAtTime(0, t); lg.gain.linearRampToValueAtTime(freq * 0.008, t + Math.min(0.3, dur * 0.7));
+  lg2.gain.setValueAtTime(0, t); lg2.gain.linearRampToValueAtTime(freq * 0.016, t + Math.min(0.3, dur * 0.7));
+  lfo.connect(lg); lg.connect(o.frequency); lfo.connect(lg2); lg2.connect(o2.frequency);
+  g2.gain.value = 0.16; o2.connect(g2); g2.connect(g); o.connect(g);
+  const a = 0.03, r = Math.min(0.1, dur * 0.35);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + a);
+  g.gain.linearRampToValueAtTime(vol * 0.8, t + Math.max(a + 0.01, dur - r)); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  g.connect(musicGain);
+  const n = ac.createBufferSource(); n.buffer = getNoise(); n.loop = true;
+  const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = freq * 1.6; bp.Q.value = 1.8;
+  const ng = ac.createGain(); ng.gain.setValueAtTime(vol * 0.9, t); ng.gain.exponentialRampToValueAtTime(vol * 0.1, t + 0.05);
+  ng.gain.linearRampToValueAtTime(vol * 0.08, t + Math.max(0.06, dur - r)); ng.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  n.connect(bp); bp.connect(ng); ng.connect(musicGain);
+  o.start(t); o2.start(t); lfo.start(t); n.start(t, Math.random()); o.stop(end); o2.stop(end); lfo.stop(end); n.stop(end);
+}
+function droneNote(freq, when, dur) {
+  const t = ac.currentTime + Math.max(0, when), end = t + dur + 0.1;
+  const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 480; f.Q.value = 4;
+  const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.06, t + 0.1); g.gain.setValueAtTime(0.06, t + dur - 0.05); g.gain.exponentialRampToValueAtTime(0.0001, end);
+  [1, 1.004].forEach(m => { const o = ac.createOscillator(); o.type = 'sawtooth'; o.frequency.value = freq * m; o.connect(f); o.start(t); o.stop(end + 0.02); });
+  f.connect(g); g.connect(musicGain);
+}
+function drumHit(kind, when) {
+  const t = ac.currentTime + Math.max(0, when);
+  if (kind === 'D') {
+    const o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine';
+    o.frequency.setValueAtTime(120, t); o.frequency.exponentialRampToValueAtTime(48, t + 0.16);
+    g.gain.setValueAtTime(0.5, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.2); o.connect(g); g.connect(musicGain); o.start(t); o.stop(t + 0.22);
+  } else {
+    const n = ac.createBufferSource(); n.buffer = getNoise(); const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 2500;
+    const g = ac.createGain(); g.gain.setValueAtTime(0.14, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+    n.connect(hp); hp.connect(g); g.connect(musicGain); n.start(t, Math.random()); n.stop(t + 0.06);
+  }
+}
 let mus = { on: false, timer: null };
 function playMusic(id) {
   stopMusic(); if (!ac) return;
@@ -442,12 +620,14 @@ function playMusic(id) {
 }
 function schedule() {
   if (!ac || !mus.on) return;
-  const tr = mus.tr, dt = 60 / tr.bpm / 2;
-  while (mus.next < ac.currentTime + 0.2) {
-    const i = mus.step % tr.mel.length, when = mus.next - ac.currentTime;
-    const m = tr.mel[i], bs = tr.bass[i % tr.bass.length];
-    if (m) tone(midi(m), dt * 0.85, 'square', 0.11, 1, when, musicGain);
-    if (bs) tone(midi(bs), dt * 0.95, 'triangle', 0.3, 1, when, musicGain);
+  const tr = mus.tr, dt = 60 / tr.bpm / 2, L = tr.mel.length;
+  while (mus.next < ac.currentTime + 0.25) {
+    const i = mus.step, when = mus.next - ac.currentTime, tok = tr.mel[i % L];
+    try {
+      if (tok && typeof tok === 'object') { let h = 1; while (h < L && tr.mel[(i + h) % L] === '-') h++; flute(midi(tok.n), when, h * dt * 0.96, 0.42, tok.orn); }
+      if (i % 8 === 0) { const d = tr.drone[(i / 8) % tr.drone.length]; if (d && typeof d === 'object') droneNote(midi(d.n), when, 8 * dt); }
+      const dc = tr.drum[i % tr.drum.length]; if (dc === 'D' || dc === 't') drumHit(dc, when);
+    } catch (e) {}
     mus.next += dt; mus.step++;
   }
 }
@@ -536,39 +716,50 @@ let L = null, tiles = null, ents = [], items = [], shots = [], fires = [], parts
 const bumps = new Map();
 let player = null, boss = null, aval = null, cpActive = null;
 const cam = { x: 0 };
-let frame = 0, st = 'boot', levelIdx = 0, lives = 3, totalLeke = 0, levelLeke = 0, stT = 0, denyT = 0;
-let mission = { lambs: 0, keys: 0 };
+let frame = 0, st = 'boot', levelIdx = 0, lives = 3, totalLeke = 0, levelLeke = 0, stT = 0, denyT = 0, score = 0, levelScore = 0;
+let mission = { lambs: 0, keys: 0, pieces: 0, kills: 0, feathers: 0 };
+let rocks = [], crumbs = new Map(), springHint = false;
 
 function loadLevel(i) {
   levelIdx = i; const def = LEVELS[i];
   L = def.build(); L.def = def; L.gateOpen = false; L.bossDead = false; L.flagY = 26; L.eagleY = 0; L.freed = false;
   tiles = makeTiles(THEMES[L.theme]);
-  levelLeke = 0; mission = { lambs: 0, keys: 0 }; cpActive = null;
+  levelLeke = 0; levelScore = 0; mission = { lambs: 0, keys: 0, pieces: 0, kills: 0, feathers: 0 }; cpActive = null; springHint = false;
   spawnAll();
 }
 function makeEnemy(s) {
-  const d = { beetle: [14, 11], hedgehog: [14, 10], crow: [14, 9] }[s.type];
+  const d = { beetle: [14, 11], hedgehog: [14, 10], crow: [14, 9], fish: [12, 8] }[s.type];
   const e = { type: s.type, x: s.x + 1, y: s.yb - d[1], w: d[0], h: d[1], vx: 0, vy: 0, active: false, dead: false, state: 'live', t: 0, face: -1 };
+  if (s.type === 'fish') { e.x = s.x + 2; e.y = VH + 20; e.period = s.period; e.wait = s.delay; }
   e.baseY = e.y; return e;
 }
 function spawnAll() {
   ents = L.spawns.map(makeEnemy); items = []; shots = []; fires = []; parts = []; pops = []; bumps.clear();
   const sx = cpActive ? cpActive.x : L.start.x;
-  player = { x: sx, y: 10 * 16 - 15, w: 10, h: 15, vx: 0, vy: 0, face: 1, size: 'small', power: null, onGround: false, coyote: 0, jb: 0, inv: 0, dead: false, deadT: 0, anim: 0 };
+  player = { x: sx, y: 10 * 16 - 15, w: 10, h: 15, vx: 0, vy: 0, face: 1, size: 'small', power: null, onGround: false, plat: null, helmet: false, coyote: 0, jb: 0, inv: 0, dead: false, deadT: 0, anim: 0 };
   boss = null;
   if (L.arena) {
     const a = L.arena; for (let y = 0; y <= 9; y++) L.t[y * L.w + a.x0] = 0; a.locked = false;
     if (!L.bossDead) for (let y = 0; y <= 9; y++) L.t[y * L.w + a.x1] = T.STONE;
   }
+  L.timeLeft = L.def.time || 0;
+  rocks = [];
+  for (const [k] of crumbs) { const [tx, ty] = k.split(',').map(Number); L.t[ty * L.w + tx] = T.CRUMBLE; }
+  crumbs.clear();
+  for (const q of L.plats) { q.t = 0; q.x = q.x0; q.y = q.y0; q.dx = q.dy = 0; }
+  for (const c of L.cannons) c.t = c.phase;
+  for (const z of L.rockZones) z.t = 0;
   aval = L.aval ? { x: sx - 210, delay: cpActive ? 90 : 150, speed: L.aval.speed } : null;
   cam.x = clamp(player.x - VW * 0.4, 0, L.w * 16 - VW);
 }
 
 /* ---------------- physics ---------------- */
-function solidAt(tx, ty) {
+function solidAt(tx, ty, up) {
   if (tx < 0 || tx >= L.w) return true;
   if (ty < 0 || ty >= ROWS) return false;
-  return L.t[ty * L.w + tx] !== 0;
+  const v = L.t[ty * L.w + tx];
+  if (v === T.HID_LIFE || v === T.HID_COIN) return !!up;
+  return v !== 0;
 }
 function moveBody(o) {
   o.onGround = false; o.hitWall = 0; o.hitHead = null;
@@ -584,14 +775,14 @@ function moveBody(o) {
   const dy = Math.sign(o.vy);
   if (dy !== 0) {
     const ty = Math.floor((dy > 0 ? o.y + o.h - 0.001 : o.y) / 16);
-    const x0 = Math.floor(o.x / 16), x1 = Math.floor((o.x + o.w - 0.001) / 16);
+    const x0 = Math.floor(o.x / 16), x1 = Math.floor((o.x + o.w - 0.001) / 16), up = dy < 0 && o === player;
     for (let tx = x0; tx <= x1; tx++) {
-      if (solidAt(tx, ty)) {
+      if (solidAt(tx, ty, up)) {
         if (dy > 0) { o.y = ty * 16 - o.h; o.onGround = true; }
         else {
           o.y = (ty + 1) * 16;
           const cx = Math.floor((o.x + o.w / 2) / 16);
-          o.hitHead = solidAt(cx, ty) && cx >= 0 && cx < L.w ? [cx, ty] : [tx, ty];
+          o.hitHead = solidAt(cx, ty, up) && cx >= 0 && cx < L.w ? [cx, ty] : [tx, ty];
         }
         o.vy = 0; break;
       }
@@ -608,27 +799,26 @@ function toast(msg, ms) {
 function addPart(k, x, y, vx, vy, life) { parts.push({ k, x, y, vx, vy, t: 0, life }); }
 function addPop(x, y, txt) { pops.push({ x, y, txt, t: 0 }); }
 function sparkle(x, y, n, k) { for (let i = 0; i < (n || 8); i++) { const a = Math.random() * Math.PI * 2, s = 0.6 + Math.random() * 1.4; addPart(k || 'spark', x, y, Math.cos(a) * s, Math.sin(a) * s - 0.5, 24 + Math.random() * 16); } }
+function addScore(n) { score += n; levelScore += n; }
 function addLeke(n) {
-  const before = totalLeke; levelLeke += n; totalLeke += n;
-  if (Math.floor(totalLeke / 100) > Math.floor(before / 100)) { lives++; sfx('one'); toast('100 lekë · +1 jetë'); }
+  const before = totalLeke; levelLeke += n; totalLeke += n; addScore(10 * n);
+  if (Math.floor(totalLeke / 30) > Math.floor(before / 30)) { lives++; sfx('one'); toast('30 lekë · +1 jetë'); }
 }
+function foundSecret(msg) { L.secretsFound++; addScore(1000); toast(`${msg} · sekrete ${L.secretsFound}/${L.secretsTotal}`, 2000); }
 function collectCoin(c) { c.got = true; addLeke(1); sfx('coin'); sparkle(c.x + 5, c.y + 6, 5); }
 function coinPop(tx, ty) { addPart('coin', tx * 16 + 2, ty * 16 - 14, 0, -4.2, 24); addLeke(1); sfx('coin'); }
 function brickBreak(tx, ty) { const x = tx * 16, y = ty * 16; [[-1.2, -4], [1.2, -4], [-0.9, -2.6], [0.9, -2.6]].forEach(([vx, vy], i) => addPart('brick', x + (i % 2) * 8 + 2, y + (i > 1 ? 8 : 0), vx, vy, 60)); }
-function kill(e) { if (e.state !== 'live') return; e.state = 'flip'; e.vy = -3; e.vx = (Math.random() - 0.5) * 1.5; sfx('stomp'); addPop(e.x, e.y, '+'); }
-function missionMet() {
-  const d = L.def;
-  if (d.kind === 'leke') return levelLeke >= d.need;
-  if (d.kind === 'lambs') return mission.lambs >= d.need;
-  return true;
-}
+function kill(e) { if (e.state !== 'live') return; e.state = 'flip'; e.vy = -3; e.vx = (Math.random() - 0.5) * 1.5; sfx('stomp'); addPop(e.x, e.y, '100'); addScore(100); mission.kills++; }
+function missionMet() { return mission.feathers >= 3; }
 
 function bumpBlock(tx, ty) {
   const i = ty * L.w + tx, v = L.t[i], key = tx + ',' + ty;
   if (v === T.QCOIN) { L.t[i] = T.USED; coinPop(tx, ty); bumps.set(key, 8); }
   else if (v === T.QPOW) { L.t[i] = T.USED; bumps.set(key, 8); spawnItem(player.size === 'small' ? 'byrek' : 'olive', tx, ty); sfx('sprout'); }
   else if (v === T.MULTI) { let n = L.multi[key] || 0; if (n > 0) { n--; L.multi[key] = n; coinPop(tx, ty); bumps.set(key, 8); } if (n <= 0) L.t[i] = T.USED; }
-  else if (v === T.BRICK) { if (player.size === 'big') { L.t[i] = 0; brickBreak(tx, ty); sfx('brk'); } else { bumps.set(key, 8); sfx('bump'); } }
+  else if (v === T.HID_LIFE) { L.t[i] = T.USED; bumps.set(key, 8); spawnItem('plis', tx, ty); sfx('sprout'); foundSecret('Bllok i fshehur!'); }
+  else if (v === T.HID_COIN) { L.t[i] = T.USED; bumps.set(key, 8); for (let k = 0; k < 5; k++) addPart('coin', tx * 16 + 2, ty * 16 - 14, (k - 2) * 0.7, -4 - k * 0.15, 26); addLeke(5); sfx('coin'); sfx('one'); foundSecret('+5 lekë të fshehura!'); }
+  else if (v === T.BRICK) { if (player.size === 'big') { L.t[i] = 0; brickBreak(tx, ty); sfx('brk'); addScore(50); } else { bumps.set(key, 8); sfx('bump'); } }
   else { sfx('bump'); return; }
   const top = ty * 16, l = tx * 16, r = l + 16;
   for (const e of ents) if (e.state === 'live' && e.type !== 'crow' && Math.abs(e.y + e.h - top) < 3 && e.x + e.w > l && e.x < r) kill(e);
@@ -636,7 +826,7 @@ function bumpBlock(tx, ty) {
   for (const c of L.coins) if (!c.got && c.y + c.h >= top - 16 && c.y < top && c.x + c.w > l && c.x < r) collectCoin(c);
 }
 function spawnItem(kind, tx, ty) {
-  const h = kind === 'byrek' ? 9 : 12, w = 14;
+  const h = kind === 'byrek' ? 11 : kind === 'plis' ? 7 : 12, w = 14;
   items.push({ kind, x: tx * 16 + 1, y: ty * 16 + 16 - h, w, h, vx: 0, vy: 0, emerge: 32 });
 }
 
@@ -674,11 +864,29 @@ function updPlayer() {
   p.jb = input.aP ? 7 : Math.max(0, p.jb - 1);
   if (p.jb > 0 && p.coyote > 0) { p.vy = -(5.0 + Math.abs(p.vx) * 0.26); p.jb = 0; p.coyote = 0; sfx('jump'); }
   p.vy = Math.min(p.vy + ((p.vy < 0 && input.a) ? 0.22 : 0.55), 5.5);
+  if (p.plat) { p.x += p.plat.dx; p.y += p.plat.dy; }
+  const prevBottom = p.y + p.h;
   moveBody(p);
+  p.plat = null;
+  if (p.vy >= 0) for (const q of L.plats) {
+    if (p.x + p.w > q.x + 1 && p.x < q.x + q.w - 1 && prevBottom <= q.y - q.dy + 3 && p.y + p.h >= q.y) { p.y = q.y - p.h; p.vy = 0; p.onGround = true; p.plat = q; break; }
+  }
+  if (p.onGround && !p.plat) {
+    const fy = Math.floor((p.y + p.h + 1) / 16);
+    for (let tx = Math.floor(p.x / 16); tx <= Math.floor((p.x + p.w - 0.001) / 16); tx++) {
+      const v = fy < ROWS && tx >= 0 && tx < L.w ? L.t[fy * L.w + tx] : 0;
+      if (v === T.CRUMBLE && !crumbs.has(tx + ',' + fy)) { crumbs.set(tx + ',' + fy, { t: 26, gone: false, r: 0 }); sfx('crack'); }
+    }
+    const cx = Math.floor((p.x + p.w / 2) / 16);
+    if (fy < ROWS && L.t[fy * L.w + cx] === T.SPRING) {
+      p.vy = -8.2; p.onGround = false; p.coyote = 0; bumps.set(cx + ',' + fy, 10); sfx('spring');
+      if (!springHint && !input.a) { springHint = true; toast('Mbaj A për kërcim më të lartë', 1600); }
+    }
+  }
   if (p.hitHead) bumpBlock(p.hitHead[0], p.hitHead[1]);
   if (p.hitWall && L.gateX != null && !L.gateOpen && denyT <= 0) {
     const tx = Math.floor((p.hitWall > 0 ? p.x + p.w + 1 : p.x - 1) / 16), ty = Math.floor((p.y + p.h - 2) / 16);
-    if (tx === L.gateX && L.t[ty * L.w + tx] === T.GATE) { toast(`Porta është e mbyllur · çelësa ${mission.keys}/3`); sfx('deny'); denyT = 120; }
+    if (tx === L.gateX && L.t[ty * L.w + tx] === T.GATE) { toast(`Porta hapet vetëm me 3 pendë · ${mission.feathers}/3`); sfx('deny'); denyT = 120; }
   }
   if (p.onGround) p.anim += Math.abs(p.vx) * 0.13;
   if (p.inv > 0) p.inv--;
@@ -697,28 +905,38 @@ function afterDeath() {
 /* ---------------- world update ---------------- */
 function updEnemy(e) {
   if (!e.active) {
-    if (e.x < cam.x + VW + 24) { e.active = true; e.vx = e.type === 'beetle' ? -0.45 : e.type === 'hedgehog' ? -0.35 : -0.6; }
+    if (e.x < cam.x + VW + 24) { e.active = true; e.vx = ({ beetle: -0.45, hedgehog: -0.35, crow: -0.6 })[e.type] || e.vx || 0; }
     else return;
   }
   e.t++;
   if (e.state === 'flat') { if (e.t > 30) e.dead = true; return; }
   if (e.state === 'flip') { e.vy += 0.3; e.y += e.vy; e.x += e.vx; if (e.y > VH + 40) e.dead = true; return; }
-  if (e.type === 'crow') { e.x += e.vx; e.y = e.baseY + Math.sin(e.t * 0.05) * 18; e.face = e.vx < 0 ? -1 : 1; if (e.x < -40) e.dead = true; }
+  if (e.type === 'fish') {
+    if (e.wait > 0) { e.wait--; e.y = VH + 20; if (e.wait === 0) { e.vy = -7; sfx('splash'); } return; }
+    e.vy += 0.28; e.y += e.vy; e.face = e.vy < 0 ? 1 : -1;
+    if (e.y > VH + 20 && e.vy > 0) { e.wait = e.period; return; }
+  }
+  else if (e.type === 'ball') {
+    e.x += e.vx; e.face = e.vx < 0 ? -1 : 1;
+    const bx = Math.floor((e.x + e.w / 2) / 16), by = Math.floor((e.y + e.h / 2) / 16);
+    if (solidAt(bx, by) || e.x < cam.x - 60 || e.x > cam.x + VW + 60) { e.dead = true; sparkle(e.x + 5, e.y + 5, 4); return; }
+  }
+  else if (e.type === 'crow') { e.x += e.vx; e.y = e.baseY + Math.sin(e.t * 0.05) * 18; e.face = e.vx < 0 ? -1 : 1; if (e.x < -40) e.dead = true; }
   else { e.vy = Math.min(e.vy + 0.4, 5); const pv = e.vx; moveBody(e); if (e.hitWall) e.vx = -pv; e.face = e.vx < 0 ? -1 : 1; if (e.y > VH + 32) e.dead = true; }
   const p = player;
   if (p.dead || e.state !== 'live' || !overlap(p, e)) return;
   const fromAbove = p.vy > 0 && (p.y + p.h - p.vy) <= e.y + 5;
   if (e.type !== 'hedgehog' && fromAbove) {
-    if (e.type === 'crow') { e.state = 'flip'; e.vy = 0; } else { e.state = 'flat'; e.t = 0; }
-    p.vy = input.a ? -5.4 : -3.8; sfx('stomp'); addPop(e.x, e.y - 4, '+');
+    if (e.type === 'crow' || e.type === 'ball' || e.type === 'fish') { e.state = 'flip'; e.vy = 0; } else { e.state = 'flat'; e.t = 0; }
+    p.vy = input.a ? -5.4 : -3.8; sfx('stomp'); addPop(e.x, e.y - 4, '100'); addScore(100); mission.kills++;
   } else hurt();
 }
 function updItems() {
   for (const it of items) {
-    if (it.emerge > 0) { it.emerge--; it.y -= 0.5; if (it.emerge === 0 && it.kind === 'byrek') it.vx = 1; continue; }
-    if (it.kind === 'byrek' || it.vy !== 0) { it.vy = Math.min(it.vy + 0.4, 5); const pv = it.vx; moveBody(it); if (it.hitWall) it.vx = -pv; }
+    if (it.emerge > 0) { it.emerge--; it.y -= 0.5; if (it.emerge === 0 && it.kind !== 'olive') it.vx = it.kind === 'plis' ? 1.2 : 1; continue; }
+    if (it.kind !== 'olive' || it.vy !== 0) { it.vy = Math.min(it.vy + 0.4, 5); const pv = it.vx; moveBody(it); if (it.hitWall) it.vx = -pv; }
     if (it.y > VH + 20) it.dead = true;
-    if (!player.dead && overlap(player, it)) { it.dead = true; grow(it.kind === 'olive' ? 'olive' : null); addPop(it.x, it.y, it.kind === 'olive' ? 'ULLI!' : 'BYREK!'); }
+    if (!player.dead && overlap(player, it)) { it.dead = true; addScore(500); if (it.kind === 'plis') { lives++; sfx('one'); addPop(it.x, it.y, '+1 JETË'); } else { grow(it.kind === 'olive' ? 'olive' : null); addPop(it.x, it.y, it.kind === 'olive' ? 'ULLI!' : 'BYREK!'); } }
   }
   items = items.filter(i => !i.dead);
 }
@@ -774,14 +992,14 @@ function updBoss() {
   }
 }
 function bossDefeated() {
-  L.bossDead = true; const a = L.arena; a.locked = false;
+  L.bossDead = true; addScore(5000); const a = L.arena; a.locked = false;
   for (let y = 0; y <= 9; y++) { if (L.t[y * L.w + a.x1]) { L.t[y * L.w + a.x1] = 0; brickBreak(a.x1, y); } }
-  sfx('gate'); toast('Kuçedra u mund! Liro shqiponjën.', 2600); playMusic(3);
+  sfx('gate'); toast('Kuçedra u mund! Liro shqiponjën.', 2600); playMusic('dark');
 }
 function openGate() {
   L.gateOpen = true;
   for (let y = 6; y <= 9; y++) { L.t[y * L.w + L.gateX] = 0; sparkle(L.gateX * 16 + 8, y * 16 + 8, 6); }
-  sfx('gate'); toast('Porta e Rozafës u hap!', 2200);
+  sfx('gate'); toast('Të 3 pendët! Porta e Rozafës u hap!', 2400);
 }
 function updAval() {
   if (!aval || player.dead) return;
@@ -804,19 +1022,75 @@ function updParts() {
   pops = pops.filter(t => t.t < 40);
   for (const [k, v] of bumps) { if (v <= 1) bumps.delete(k); else bumps.set(k, v - 1); }
 }
+function updPlats() {
+  for (const q of L.plats) {
+    q.t += q.speed; const r = q.range, u = q.t % (2 * r), off = u < r ? u : 2 * r - u;
+    const nx = q.axis === 'x' ? q.x0 + off : q.x0, ny = q.axis === 'y' ? q.y0 + off : q.y0;
+    q.dx = nx - q.x; q.dy = ny - q.y; q.x = nx; q.y = ny;
+  }
+}
+function updCannons() {
+  for (const c of L.cannons) {
+    const cx = c.tx * 16; if (cx < cam.x - 40 || cx > cam.x + VW + 80) continue;
+    c.t++;
+    if (c.t % c.period === 0) {
+      ents.push({ type: 'ball', x: c.dir < 0 ? cx - 10 : cx + 16, y: c.ty * 16 + 3, w: 10, h: 10, vx: c.dir * 1.5, vy: 0, active: true, dead: false, state: 'live', t: 0, face: c.dir });
+      sfx('boom'); for (let i = 0; i < 4; i++) addPart('smoke', c.dir < 0 ? cx - 2 : cx + 18, c.ty * 16 + 8, c.dir * Math.random(), -0.3 - Math.random() * 0.4, 30);
+    }
+  }
+}
+function updRocks() {
+  const p = player;
+  for (const z of L.rockZones) {
+    if (p.x < z.x0 || p.x > z.x1) continue;
+    z.t++;
+    if (z.t % z.period === 0) rocks.push({ x: clamp(p.x + p.vx * 30 + (Math.random() - 0.5) * 48, z.x0, z.x1), y: -14, w: 10, h: 8, vy: 0, warn: 40 });
+  }
+  for (const r of rocks) {
+    if (r.warn > 0) { r.warn--; if (r.warn % 6 === 0) addPart('pebble', r.x + 3 + Math.random() * 4, 0, 0, 1.5, 14); continue; }
+    r.vy = Math.min(r.vy + 0.3, 6); r.y += r.vy;
+    if (solidAt(Math.floor((r.x + 5) / 16), Math.floor((r.y + r.h) / 16))) { r.dead = true; sfx('rock'); for (let i = 0; i < 5; i++) addPart('pebble', r.x + 5, r.y + 4, (Math.random() - 0.5) * 3, -1 - Math.random() * 2, 30); continue; }
+    if (r.y > VH) r.dead = true;
+    if (!p.dead && overlap(p, r)) { hurt(); r.dead = true; }
+  }
+  rocks = rocks.filter(r => !r.dead);
+}
+function updCrumbs() {
+  for (const [k, c] of crumbs) {
+    const [tx, ty] = k.split(',').map(Number);
+    if (!c.gone) {
+      if (--c.t <= 0) { c.gone = true; c.r = 300; L.t[ty * L.w + tx] = 0; for (let i = 0; i < 3; i++) addPart('stone', tx * 16 + 2 + i * 4, ty * 16 + 4, (Math.random() - 0.5), 0.5, 50); }
+    } else if (--c.r <= 0 && !overlap(player, { x: tx * 16, y: ty * 16, w: 16, h: 16 })) { L.t[ty * L.w + tx] = T.CRUMBLE; crumbs.delete(k); }
+  }
+}
 function updateWorld() {
+  updPlats();
   updPlayer();
   if (st !== 'play') return;
   const p = player;
   if (!p.dead) {
     for (const e of ents) updEnemy(e);
     ents = ents.filter(e => !e.dead);
-    updItems(); updShots(); updFires(); updBoss(); updAval();
+    updCannons(); updItems(); updShots(); updFires(); updBoss(); updAval(); updRocks(); updCrumbs();
     for (const c of L.coins) if (!c.got && overlap(p, c)) collectCoin(c);
     for (const l of L.lambs) if (!l.got && overlap(p, l)) {
       l.got = true; mission.lambs++; sfx('lamb'); for (let i = 0; i < 6; i++) addPart('heart', l.x + 7, l.y, (Math.random() - 0.5) * 1.2, -0.8 - Math.random(), 50);
       toast(mission.lambs >= 3 ? 'U shpëtuan të 3 qengjat! Tani kap flamurin.' : `Qengj i shpëtuar · ${mission.lambs}/3`);
     }
+    for (const q of L.pieces) if (!q.got && overlap(p, q)) {
+      q.got = true; mission.pieces++; addScore(500); sfx('key'); sparkle(q.x + 6, q.y + 5, 10);
+      toast(mission.pieces >= 5 ? 'Flamuri është i plotë! Tani kap flamurin.' : `Copë flamuri · ${mission.pieces}/5`);
+    }
+    for (const c of L.chests) if (!c.got && overlap(p, c)) {
+      c.got = true; sfx('power'); sparkle(c.x + 7, c.y, 14);
+      if (L.noCoins) { lives++; sfx('one'); foundSecret('Thesar! +1 jetë'); } else { addLeke(10); foundSecret('Thesar! +10 lekë'); }
+    }
+    for (const f of L.feathers) if (!f.got && overlap(p, f)) {
+      f.got = true; mission.feathers++; addScore(1000); sfx('feather'); sparkle(f.x + 5, f.y + 7, 12);
+      if (L.gateX != null && mission.feathers >= 3 && !L.gateOpen) openGate();
+      else toast(mission.feathers >= 3 ? (L.gateX != null ? '' : 'Të 3 pendët! Tani kap flamurin.') : `Pendë shqiponje · ${mission.feathers}/3`);
+    }
+    if (L.def.kind === 'timer') { L.timeLeft -= 1 / 60; if (L.timeLeft <= 0) { L.timeLeft = 0; die(); toast('Mbaroi koha!', 1500); } }
     for (const k of L.keys) if (!k.got && overlap(p, k)) {
       k.got = true; mission.keys++; sfx('key'); sparkle(k.x + 7, k.y + 3, 12);
       if (mission.keys >= 3) openGate(); else toast(`Çelës i gjetur · ${mission.keys}/3`);
@@ -824,7 +1098,7 @@ function updateWorld() {
     for (const c of L.cps) if (!c.on && p.x >= c.x) { c.on = true; cpActive = c; sfx('cp'); toast('Pikë kontrolli', 1100); }
     if (L.goal && overlap(p, { x: L.goal.x + 5, y: 24, w: 6, h: 120 })) {
       if (missionMet()) startClear();
-      else if (denyT <= 0) { denyT = 100; sfx('deny'); toast(L.def.kind === 'leke' ? `Duhen ${L.def.need} lekë · ke ${levelLeke}` : `Shpëto fillimisht qengjat · ${mission.lambs}/3`); }
+      else if (denyT <= 0) { denyT = 100; sfx('deny'); toast(`Të duhen 3 pendë · ke ${mission.feathers}/3`); }
     }
     if (L.arena && !L.arena.locked && !L.bossDead && p.x > (L.arena.x0 + 1) * 16 + 4) {
       for (let y = 0; y <= 9; y++) L.t[y * L.w + L.arena.x0] = T.STONE;
@@ -837,7 +1111,7 @@ function updateWorld() {
   updCam();
 }
 function startClear() {
-  st = 'clear'; stT = 0; stopMusic(); sfx('clear'); toast('Flamuri u arrit!', 1500);
+  st = 'clear'; stT = 0; stopMusic(); sfx('clear'); addScore(1000 + (L.def.kind === 'timer' ? Math.round(L.timeLeft) * 20 : 0)); toast('Flamuri u arrit!', 1500);
   const p = player; p.vx = 0; p.vy = 0; p.inv = 0; p.x = L.goal.x + 7 - p.w;
 }
 function updClear() {
@@ -854,9 +1128,15 @@ function startFreeing() {
 function updFreeing() {
   stT++;
   if (stT > 30) L.eagleY -= 0.7;
+  const hm = L.helmet, p = player;
+  if (hm && !p.helmet && stT > 70) {
+    const tx = p.x + p.w / 2 - 9, ty = p.y - 20;
+    hm.x += (tx - hm.x) * 0.06; hm.y += (ty - hm.y) * 0.06 - (stT < 110 ? 1.2 : 0);
+    if (stT > 150) { p.helmet = true; sparkle(p.x + p.w / 2, p.y, 14); sfx('power'); toast('Përkrenarja e Skënderbeut!', 2200); }
+  }
   if (stT % 6 === 0) sparkle(L.cage.x + 16 + (Math.random() - 0.5) * 30, L.eagleY + 10, 2, Math.random() < 0.5 ? 'heart' : 'spark');
   updParts(); updCam();
-  if (stT > 230) victory();
+  if (stT > 230) showStory(STORY_END, 0, victory);
 }
 
 /* ---------------- rendering ---------------- */
@@ -896,6 +1176,92 @@ function drawBG() {
       const x = k * 140 - off + 30;
       ctx.fillStyle = '#7a5230'; for (let s = 0; s < 8; s++) ctx.fillRect(x + Math.round(Math.sin(s * 0.4) * 2), 158 - s * 5, 3, 5);
       ctx.fillStyle = '#2f7a3b'; ctx.fillRect(x - 12, 118, 12, 3); ctx.fillRect(x + 3, 118, 12, 3); ctx.fillRect(x - 8, 115, 20, 3); ctx.fillRect(x - 14, 121, 5, 3); ctx.fillRect(x + 12, 121, 5, 3);
+    }
+  } else if (L.theme === 'vlore') {
+    ctx.fillStyle = '#fff6c8'; ctx.beginPath(); ctx.arc(VW - 60, 30, 11, 0, Math.PI * 2); ctx.fill();
+    clouds(0.1, 22, 'rgba(255,255,255,.8)');
+    ridge(0.06, 7, 114, 30, '#7ea3bd');
+    ctx.fillStyle = '#1d8fbf'; ctx.fillRect(0, 112, VW, VH - 112);
+    const so = cam.x * 0.12;
+    for (let i = -1; i < VW / 520 + 2; i++) { const k = Math.floor(so / 520) + i, x = k * 520 - so + 200; ctx.fillStyle = '#4f7f8f'; ctx.beginPath(); ctx.ellipse(x, 113, 62, 9, 0, Math.PI, 0); ctx.fill(); }
+    ctx.fillStyle = '#7cc6ec'; for (let i = 0; i < 14; i++) { const x = ((i * 53 - cam.x * 0.3 + frame * 0.2) % (VW + 40) + VW + 40) % (VW + 40) - 20; ctx.fillRect(x, 120 + (i % 5) * 7, 10 + (i % 3) * 4, 1); }
+    const mo = cam.x * 0.4;
+    for (let i = -1; i < VW / 560 + 2; i++) {
+      const k = Math.floor(mo / 560) + i, x = Math.round(k * 560 - mo + 140), wave = Math.round(Math.sin(frame * 0.12) * 1.5);
+      ctx.fillStyle = '#e9e2d0'; ctx.fillRect(x - 16, 146, 32, 20); ctx.fillRect(x - 5, 100, 10, 46);
+      ctx.fillStyle = '#8a7f6b'; ctx.fillRect(x - 5, 88, 10, 12); ctx.fillRect(x - 2, 83, 5, 5); ctx.fillRect(x + 5, 60, 2, 34);
+      ctx.fillStyle = '#d7263d'; ctx.fillRect(x + 7, 60 + wave, 18, 11);
+      ctx.fillStyle = '#1a1418'; ctx.fillRect(x + 14, 63 + wave, 4, 5); ctx.fillRect(x + 12, 64 + wave, 8, 2);
+    }
+    const po = cam.x * 0.55;
+    for (let i = -1; i < VW / 140 + 2; i++) {
+      const k = Math.floor(po / 140) + i; if (rnd(k + 7) < 0.45) continue;
+      const x = k * 140 - po + 80;
+      ctx.fillStyle = '#7a5230'; for (let q = 0; q < 8; q++) ctx.fillRect(x + Math.round(Math.sin(q * 0.4) * 2), 158 - q * 5, 3, 5);
+      ctx.fillStyle = '#2f7a3b'; ctx.fillRect(x - 12, 118, 12, 3); ctx.fillRect(x + 3, 118, 12, 3); ctx.fillRect(x - 8, 115, 20, 3); ctx.fillRect(x - 14, 121, 5, 3); ctx.fillRect(x + 12, 121, 5, 3);
+    }
+  } else if (L.theme === 'gjiro') {
+    clouds(0.08, 26, 'rgba(255,255,255,.75)');
+    ridge(0.06, 8, 104, 52, '#93a7b8', true);
+    ridge(0.14, 9, 130, 30, '#7d8a6c');
+    const co = cam.x * 0.14;
+    for (let i = -1; i < VW / 700 + 2; i++) {
+      const k = Math.floor(co / 700) + i, x = Math.round(k * 700 - co + 160), base = Math.round(ridgeY(x + co, 9, 130, 30)) + 4;
+      ctx.fillStyle = '#6e6a60'; ctx.fillRect(x - 44, base - 16, 88, 18);
+      for (let c = -44; c < 44; c += 8) ctx.fillRect(x + c, base - 20, 4, 4);
+      ctx.fillRect(x + 12, base - 40, 12, 24); ctx.fillStyle = '#4c4a44'; ctx.beginPath(); ctx.moveTo(x + 10, base - 40); ctx.lineTo(x + 18, base - 50); ctx.lineTo(x + 26, base - 40); ctx.fill();
+      ctx.fillStyle = '#f1ede4'; ctx.fillRect(x + 15, base - 35, 6, 6);
+    }
+    const ho = cam.x * 0.35;
+    for (let i = -1; i < VW / 30 + 2; i++) {
+      const k = Math.floor(ho / 30) + i; if (rnd(k + 11) < 0.25) continue;
+      const x = Math.round(k * 30 - ho), base = 150 + Math.floor(rnd(k) * 3) * 6, hg = 24 + Math.floor(rnd(k + 5) * 2) * 8;
+      ctx.fillStyle = '#bdb5a4'; ctx.fillRect(x, base - hg, 26, hg + 30);
+      ctx.fillStyle = '#565a61'; ctx.beginPath(); ctx.moveTo(x - 3, base - hg); ctx.lineTo(x + 13, base - hg - 12); ctx.lineTo(x + 29, base - hg); ctx.fill();
+      ctx.fillStyle = '#f1ede4'; ctx.fillRect(x + 4, base - hg + 5, 18, 7);
+      ctx.fillStyle = '#2c2a28'; for (let q = 0; q < 3; q++) ctx.fillRect(x + 5 + q * 6, base - hg + 6, 4, 5);
+      ctx.fillRect(x + 6, base - hg + 18, 3, 4); ctx.fillRect(x + 17, base - hg + 18, 3, 4);
+    }
+  } else if (L.theme === 'butrint') {
+    ctx.fillStyle = '#fff1c4'; ctx.beginPath(); ctx.arc(VW - 70, 44, 14, 0, Math.PI * 2); ctx.fill();
+    clouds(0.08, 24, 'rgba(255,248,230,.75)');
+    ridge(0.06, 10, 116, 30, '#8fa784');
+    ctx.fillStyle = '#2d8c8a'; ctx.fillRect(0, 118, VW, VH - 118);
+    ctx.fillStyle = '#59b5ad'; for (let i = 0; i < 12; i++) { const x = ((i * 61 - cam.x * 0.25 + frame * 0.15) % (VW + 40) + VW + 40) % (VW + 40) - 20; ctx.fillRect(x, 124 + (i % 4) * 8, 12, 1); }
+    const ao = cam.x * 0.2;
+    for (let i = -1; i < VW / 420 + 2; i++) {
+      const k = Math.floor(ao / 420) + i, x = Math.round(k * 420 - ao + 60);
+      ctx.fillStyle = '#c9b48d'; ctx.fillRect(x, 96, 120, 30);
+      ctx.fillStyle = '#8b7a5c'; for (let a = 0; a < 5; a++) { ctx.beginPath(); ctx.arc(x + 12 + a * 24, 112, 8, Math.PI, 0); ctx.lineTo(x + 20 + a * 24, 126); ctx.lineTo(x + 4 + a * 24, 126); ctx.fill(); }
+    }
+    const co = cam.x * 0.38;
+    for (let i = -1; i < VW / 46 + 2; i++) {
+      const k = Math.floor(co / 46) + i; if (rnd(k + 21) < 0.3) continue;
+      const x = Math.round(k * 46 - co), hgt = 18 + Math.floor(rnd(k + 3) * 4) * 8;
+      ctx.fillStyle = '#e3d6b8'; ctx.fillRect(x, 150 - hgt, 7, hgt + 12); ctx.fillStyle = '#b9a47c'; ctx.fillRect(x - 2, 150 - hgt, 11, 3); ctx.fillRect(x + 2, 152 - hgt, 1, hgt);
+    }
+    const ro = cam.x * 0.6; ctx.fillStyle = '#4f7a3a';
+    for (let i = -1; i < VW / 9 + 2; i++) { const k = Math.floor(ro / 9) + i; if (rnd(k + 31) < 0.5) continue; const x = Math.round(k * 9 - ro); ctx.fillRect(x, 150 + rnd(k) * 8, 1, 14); ctx.fillRect(x + 2, 154, 1, 10); }
+  } else if (L.theme === 'kruje') {
+    clouds(0.07, 20, 'rgba(255,255,255,.8)');
+    ridge(0.05, 12, 110, 78, '#8d9a86', true);
+    ridge(0.12, 13, 140, 34, '#6e7f62');
+    const co = cam.x * 0.16;
+    for (let i = -1; i < VW / 640 + 2; i++) {
+      const k = Math.floor(co / 640) + i, x = Math.round(k * 640 - co + 120), base = Math.round(ridgeY(x + co, 13, 140, 34)) + 6;
+      ctx.fillStyle = '#b2a894'; ctx.fillRect(x - 60, base - 20, 120, 24); for (let c = -60; c < 60; c += 8) ctx.fillRect(x + c, base - 25, 5, 5);
+      ctx.fillRect(x + 30, base - 52, 16, 34); ctx.fillStyle = '#7d7361'; ctx.fillRect(x + 28, base - 56, 20, 5);
+      ctx.fillStyle = '#f1ede4'; ctx.beginPath(); ctx.arc(x + 38, base - 42, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#d9d2c2'; ctx.fillRect(x - 44, base - 38, 40, 20); ctx.fillStyle = '#9a4a2e'; ctx.fillRect(x - 48, base - 42, 48, 5);
+      ctx.fillStyle = '#3a2a22'; for (let w = 0; w < 4; w++) ctx.fillRect(x - 40 + w * 9, base - 32, 4, 8);
+    }
+    const bo = cam.x * 0.4;
+    for (let i = -1; i < VW / 34 + 2; i++) {
+      const k = Math.floor(bo / 34) + i; if (rnd(k + 41) < 0.2) continue;
+      const x = Math.round(k * 34 - bo);
+      ctx.fillStyle = '#6b4a31'; ctx.fillRect(x, 134, 30, 30); ctx.fillStyle = '#9a4a2e'; ctx.fillRect(x - 2, 128, 34, 7);
+      for (let st = 0; st < 5; st++) { ctx.fillStyle = st % 2 ? '#f1ede4' : '#d7263d'; ctx.fillRect(x + st * 6, 135, 6, 4); }
+      ctx.fillStyle = '#2c2019'; ctx.fillRect(x + 10, 146, 10, 18);
     }
   } else if (L.theme === 'berat') {
     clouds(0.08, 24, 'rgba(255,240,220,.7)');
@@ -948,7 +1314,7 @@ function drawBunker(d) {
 function drawTiles() {
   const x0 = Math.max(0, Math.floor(cam.x / 16)), x1 = Math.min(L.w - 1, Math.floor((cam.x + VW) / 16));
   for (let ty = 0; ty < ROWS; ty++) for (let tx = x0; tx <= x1; tx++) {
-    const v = L.t[ty * L.w + tx]; if (!v || v === T.BUNKER) continue;
+    const v = L.t[ty * L.w + tx]; if (!v || v === T.BUNKER || v === T.HID_LIFE || v === T.HID_COIN) continue;
     let img;
     switch (v) {
       case T.GROUND: img = (ty > 0 && !L.t[(ty - 1) * L.w + tx]) ? tiles.groundTop : tiles.ground; break;
@@ -956,10 +1322,25 @@ function drawTiles() {
       case T.QCOIN: case T.QPOW: img = tiles.q; break;
       case T.USED: img = tiles.used; break;
       case T.GATE: img = tiles.gate; break;
+      case T.CRUMBLE: img = tiles.crumble; break;
+      case T.SPRING: case T.CANNON: img = null; break;
       default: img = tiles.stone;
     }
-    const bk = bumps.get(tx + ',' + ty), oy = bk ? -Math.round(Math.sin(bk / 8 * Math.PI) * 4) : 0;
-    const sx = Math.round(tx * 16 - cam.x);
+    if (!img) {
+      const px = Math.round(tx * 16 - cam.x), py = ty * 16;
+      if (v === T.SPRING) {
+        const sq = bumps.get(tx + ',' + ty) ? 5 : 0;
+        ctx.fillStyle = '#1a1418'; ctx.fillRect(px + 1, py + 12, 14, 4);
+        ctx.fillStyle = '#9aa0a8'; for (let k = 0; k < 3; k++) ctx.fillRect(px + (k % 2 ? 5 : 3), py + 5 + sq * 0.6 + k * (2 - sq * 0.25), 8, 1);
+        ctx.fillStyle = '#d7263d'; ctx.fillRect(px, py + 2 + sq, 16, 3); ctx.fillStyle = '#ff6b7a'; ctx.fillRect(px + 1, py + 2 + sq, 14, 1);
+      } else {
+        const c = L.cannons.find(q => q.tx === tx && q.ty === ty); ctx.drawImage(CANNON[c && c.dir > 0 ? 1 : 0], px, py);
+      }
+      continue;
+    }
+    const bk = bumps.get(tx + ',' + ty), cr = v === T.CRUMBLE ? crumbs.get(tx + ',' + ty) : null;
+    const oy = bk ? -Math.round(Math.sin(bk / 8 * Math.PI) * 4) : 0;
+    const sx = Math.round(tx * 16 - cam.x) + (cr && !cr.gone ? ((frame >> 1) % 2 ? 1 : -1) : 0);
     ctx.drawImage(img, sx, ty * 16 + oy);
     if (v === T.QCOIN || v === T.QPOW) { ctx.fillStyle = `rgba(255,255,255,${((Math.sin(frame * 0.1) + 1) * 0.1).toFixed(3)})`; ctx.fillRect(sx + 1, ty * 16 + 1 + oy, 14, 14); }
   }
@@ -995,6 +1376,20 @@ function drawCage() {
     const h = Math.round(20 * flap); ctx.drawImage(EAGLE, x + 5, ey + (20 - h) / 2, 22, h);
   }
 }
+function drawPlats() {
+  const col = THEMES[L.theme].plat;
+  for (const q of L.plats) {
+    const x = sx(q.x), y = Math.round(q.y); if (x < -60 || x > VW + 10) continue;
+    ctx.fillStyle = '#1a1418'; ctx.fillRect(x, y, q.w, q.h + 2);
+    ctx.fillStyle = col; ctx.fillRect(x + 1, y + 1, q.w - 2, q.h);
+    ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(x + 1, y + 1, q.w - 2, 1);
+    ctx.fillStyle = 'rgba(0,0,0,.25)'; for (let k = 12; k < q.w; k += 12) ctx.fillRect(x + k, y + 2, 1, q.h - 1);
+  }
+}
+function drawRocks() {
+  for (const r of rocks) if (r.warn <= 0) ctx.drawImage(ROCK, sx(r.x), Math.round(r.y));
+}
+function drawHelmetAt(x, y, scale) { ctx.drawImage(HELMET, Math.round(x), Math.round(y), 18 * scale, 16 * scale); }
 function drawCoins() {
   for (const c of L.coins) {
     if (c.got) continue; const x = sx(c.x) - 1; if (x < -16 || x > VW) continue;
@@ -1002,10 +1397,17 @@ function drawCoins() {
     ctx.drawImage(COIN, x + Math.round((13 - w) / 2), Math.round(c.y), w, 13);
   }
   for (const l of L.lambs) { if (l.got) continue; const x = sx(l.x) - 1; if (x < -20 || x > VW) continue; const bob = (frame >> 4) % 2; ctx.drawImage(LAMB[(frame >> 6) % 2], x, l.y - bob); if ((frame >> 5) % 3 === 0) { ctx.fillStyle = '#f4f1e8'; ctx.fillRect(x + 12, l.y - 12, 2, 5); ctx.fillRect(x + 12, l.y - 5, 2, 2); } }
+  for (const c of L.chests) { const x = sx(c.x); if (x < -20 || x > VW) continue; ctx.drawImage(c.got ? CHEST_OPEN : CHEST, x, c.y); if (!c.got && frame % 50 < 3) { ctx.fillStyle = '#fff'; ctx.fillRect(x + 11, c.y + 2, 1, 1); } }
+  for (const q of L.pieces) { if (q.got) continue; const x = sx(q.x); if (x < -20 || x > VW) continue; const bob = Math.round(Math.sin(frame * 0.09 + q.x) * 2); ctx.drawImage(PIECE, x, q.y + bob); }
+  for (const f of L.feathers) { if (f.got) continue; const x = sx(f.x); if (x < -20 || x > VW) continue; const bob = Math.round(Math.sin(frame * 0.07 + f.x) * 2); ctx.drawImage(FEATHER, x, f.y + bob); if (frame % 40 < 4) { ctx.fillStyle = '#fff6c8'; ctx.fillRect(x + 7, f.y + bob + 1, 1, 1); } }
+  if (L.helmet && !(player && player.helmet)) {
+    const h = L.helmet; if (!L.freed) { ctx.fillStyle = 'rgba(245,197,66,' + (0.25 + Math.sin(frame * 0.08) * 0.1).toFixed(3) + ')'; ctx.fillRect(sx(h.x) - 3, h.y - 3, 24, 20); }
+    drawHelmetAt(sx(h.x), h.y, 1);
+  }
   for (const k of L.keys) { if (k.got) continue; const x = sx(k.x); if (x < -20 || x > VW) continue; const bob = Math.round(Math.sin(frame * 0.08) * 2); ctx.drawImage(KEY, x, k.y + bob); if (frame % 30 < 3) { ctx.fillStyle = '#fff'; ctx.fillRect(x + 2, k.y + bob - 1, 1, 1); } }
 }
 function drawEnts() {
-  for (const it of items) if (!(it.emerge > 0)) ctx.drawImage(it.kind === 'byrek' ? BYREK : OLIVE, sx(it.x) - 1, Math.round(it.y));
+  for (const it of items) if (!(it.emerge > 0)) ctx.drawImage(ITEM_SPR[it.kind], sx(it.x) - 1, Math.round(it.y));
   for (const e of ents) {
     const x = sx(e.x) - 1; if (x < -20 || x > VW + 20) continue;
     const y = Math.round(e.y), fr = (e.t >> 3) % 2, fi = e.face > 0 ? 0 : 1;
@@ -1013,6 +1415,8 @@ function drawEnts() {
     if (e.state === 'flip') { ctx.translate(x + 8, y + e.h / 2); ctx.scale(1, -1); ctx.translate(-(x + 8), -(y + e.h / 2)); }
     if (e.type === 'beetle') { if (e.state === 'flat') ctx.drawImage(BEETLE_FLAT, x, y + e.h - 3); else ctx.drawImage(BEETLE[fr], x, y); }
     else if (e.type === 'hedgehog') ctx.drawImage(HOG[fr][fi], x, y);
+    else if (e.type === 'fish') { if (e.y < VH) ctx.drawImage(FISH[fr][fi], x - 1, y); }
+    else if (e.type === 'ball') ctx.drawImage(BALL, x + 1, y);
     else ctx.drawImage(CROW[fr][fi], x, y - 3);
     ctx.restore();
   }
@@ -1036,6 +1440,7 @@ function drawPlayer() {
   else fn = 'stand';
   const img = set[fn][p.face > 0 ? 0 : 1];
   ctx.drawImage(img, sx(p.x + p.w / 2 - 8), Math.round(p.y + p.h - img.height));
+  if (p.helmet) drawHelmetAt(sx(p.x + p.w / 2 - 7), Math.round(p.y + p.h - img.height) - 6, 14 / 18);
 }
 function drawParts() {
   for (const q of parts) {
@@ -1044,6 +1449,9 @@ function drawParts() {
     else if (q.k === 'coin') ctx.drawImage(COIN, x, y);
     else if (q.k === 'heart') { ctx.fillStyle = '#e8465c'; ctx.fillRect(x, y, 2, 2); ctx.fillRect(x + 3, y, 2, 2); ctx.fillRect(x, y + 1, 5, 2); ctx.fillRect(x + 1, y + 3, 3, 1); ctx.fillRect(x + 2, y + 4, 1, 1); }
     else if (q.k === 'snow') { ctx.fillStyle = '#ffffff'; ctx.fillRect(x, y, 3, 3); }
+    else if (q.k === 'smoke') { ctx.fillStyle = 'rgba(210,210,210,' + (1 - q.t / q.life).toFixed(2) + ')'; ctx.fillRect(x, y, 4, 4); }
+    else if (q.k === 'pebble') { ctx.fillStyle = '#6b6358'; ctx.fillRect(x, y, 2, 2); }
+    else if (q.k === 'stone') { ctx.fillStyle = THEMES[L.theme].stoneDark; ctx.fillRect(x, y, 4, 4); q.vy += 0.25; }
     else if (q.k === 'fire') { ctx.fillStyle = q.t % 4 < 2 ? '#ff8c1a' : '#ffd23f'; ctx.fillRect(x, y, 3, 3); }
     else { ctx.fillStyle = q.t % 6 < 3 ? '#fff6c8' : '#f5c542'; ctx.fillRect(x, y, 2, 2); }
   }
@@ -1065,13 +1473,14 @@ function drawAval() {
 function render() {
   if (!L) { ctx.fillStyle = '#140f12'; ctx.fillRect(0, 0, VW, VH); return; }
   drawBG();
-  for (const it of items) if (it.emerge > 0) ctx.drawImage(it.kind === 'byrek' ? BYREK : OLIVE, sx(it.x) - 1, Math.round(it.y));
+  for (const it of items) if (it.emerge > 0) ctx.drawImage(ITEM_SPR[it.kind], sx(it.x) - 1, Math.round(it.y));
   drawTiles();
   for (const d of L.deco) drawBunker(d);
+  drawPlats();
   drawGoal(); drawCPs(); drawCage(); drawCoins();
   drawEnts();
   if (st !== 'title') drawPlayer();
-  drawParts(); drawAval();
+  drawRocks(); drawParts(); drawAval();
 }
 
 /* ---------------- HUD ---------------- */
@@ -1079,12 +1488,11 @@ const hudCache = {};
 function hudSet(id, val) { if (hudCache[id] !== val) { hudCache[id] = val; $(id).textContent = val; } }
 function updHud() {
   if (!L) return;
-  hudSet('hLeke', String(totalLeke)); hudSet('hLives', '×' + lives); hudSet('hLevel', (levelIdx + 1) + '·' + L.def.short);
-  const d = L.def; let m = '', done = false, alarm = false;
-  if (d.kind === 'leke') { m = `LEKË ${Math.min(levelLeke, d.need)}/${d.need}`; done = levelLeke >= d.need; }
-  else if (d.kind === 'lambs') { m = `QENGJA ${mission.lambs}/3`; done = mission.lambs >= 3; }
-  else if (d.kind === 'avalanche') { const gap = aval ? player.x - aval.x : 999; alarm = gap < 120 && st === 'play'; m = alarm ? 'ORTEKU! VRAP!' : 'ORTEKU ▸ VRAP'; }
-  else { if (!L.gateOpen) m = `ÇELËSA ${mission.keys}/3`; else if (boss) m = 'KUÇEDRA ' + '■'.repeat(Math.max(0, Math.ceil(boss.hp / 3))); else if (L.bossDead) { m = 'LIRO SHQIPONJËN'; done = true; } else m = 'KALAJA ▸'; }
+  hudSet('hLeke', String(totalLeke)); hudSet('hLives', '×' + lives); hudSet('hScore', String(score).padStart(6, '0')); hudSet('hLevel', (levelIdx + 1) + '·' + L.def.short);
+  const d = L.def; let m = `PENDË ${mission.feathers}/3`, done = mission.feathers >= 3, alarm = false;
+  if (d.kind === 'timer') { const t = Math.ceil(L.timeLeft); m += ` · ${t}`; alarm = t <= 20 && st === 'play'; }
+  else if (d.kind === 'avalanche') { const gap = aval ? player.x - aval.x : 999; if (gap < 120 && st === 'play') { alarm = true; m = 'ORTEKU! ' + m; } }
+  else if (d.kind === 'boss' && L.gateOpen) { done = false; if (boss) m = 'KUÇEDRA ' + '■'.repeat(Math.max(0, Math.ceil(boss.hp / 3))); else if (L.bossDead) { m = 'LIRO SHQIPONJËN'; done = true; } else m = 'KALAJA ▸'; }
   hudSet('hMission', m);
   const el = $('hMission'); el.classList.toggle('done', done); el.classList.toggle('alarm', alarm);
 }
@@ -1111,6 +1519,7 @@ function toTitle() {
     <div class="side">
       <div class="lv">${lvls}</div>
       <div class="row"><button class="btn red" id="bPlay" type="button">Luaj</button><button class="btn ghost" id="bFs" type="button">Ekran i plotë</button></div>
+      ${save.best ? `<p class="hint">Rekordi: ${save.best} pikë</p>` : ''}
       <p class="help"><b>Prekje</b> gishti i majtë lëviz, A kërcen, B vrapon dhe hedh ullinj.<br><b>Tastiera</b> shigjetat, Space kërcim, X vrap, P pushim. <b>Kontrolluesi</b> leva, A kërcim, X vrap.</p>
     </div></div>`);
   paintEagle($('tEagle'));
@@ -1118,14 +1527,39 @@ function toTitle() {
   on('bFs', () => goFullscreen());
   scr.querySelectorAll('.lvb').forEach(b => b.addEventListener('click', () => { audioInit(); newGame(+b.dataset.l); }));
 }
-function newGame(i) { if (isCoarse() && !document.fullscreenElement) goFullscreen(true); lives = 3; totalLeke = 0; startLevel(i); }
+function newGame(i) {
+  if (isCoarse() && !document.fullscreenElement) goFullscreen(true);
+  lives = 3; totalLeke = 0; score = 0;
+  if (i === 0) showStory(STORY_START, 0, () => startLevel(0)); else startLevel(i);
+}
+function storyArt(kind) {
+  if (kind === 'eagle') return EAGLE;
+  if (kind === 'kucedra') return KUCEDRA[1];
+  if (kind === 'byrek') return BYREK;
+  if (kind === 'feather') return FEATHER;
+  if (kind === 'helmet') return HELMET;
+  return ORIK.big.stand[0];
+}
+function showStory(pages, i, done) {
+  st = 'story'; setHud(false);
+  const last = i >= pages.length - 1, img = storyArt(pages[i].art);
+  showScreen(`<div class="card story"><p class="eyebrow">HISTORIA · ${i + 1}/${pages.length}</p>
+    <canvas class="art" id="sArt" width="${img.width}" height="${img.height}" style="width:${img.width * 3}px"></canvas>
+    <p class="tale">${pages[i].text}</p>
+    <div class="row"><button class="btn red" id="bSn" type="button">${last ? 'Vazhdo' : 'Më tej ▸'}</button>${last ? '' : '<button class="btn ghost" id="bSk" type="button">Kapërce</button>'}</div></div>`);
+  const c = $('sArt').getContext('2d'); c.imageSmoothingEnabled = false; c.drawImage(img, 0, 0);
+  on('bSn', () => last ? done() : showStory(pages, i + 1, done));
+  if (!last) on('bSk', done);
+}
+function recordBest() { if (score > (save.best || 0)) { save.best = score; persist(); return true; } return false; }
 function startLevel(i) {
   loadLevel(i); st = 'intro'; setHud(false); stopMusic();
   const d = LEVELS[i];
   showScreen(`<div class="card">
-    <p class="eyebrow">NIVELI ${i + 1} / 4</p><h2>${d.name}</h2><p class="en">${d.en}</p>
+    <p class="eyebrow">NIVELI ${i + 1} / ${NLV}</p><h2>${d.name}</h2><p class="en">${d.en}</p>
     <div class="mission"><b>MISIONI</b>${d.mission}</div>
-    <div class="stats"><span><span class="plis"></span>×${lives}</span><span><span class="coin">L</span>${totalLeke}</span></div>
+    <div class="stats"><span><span class="plis"></span>×${lives}</span><span><span class="coin">L</span>${totalLeke}</span><span>${score} pikë</span></div>
+    <p class="hint">${L.noCoins ? 'Këtu nuk ka lekë. Thesaret japin jetë.' : 'Çdo 30 lekë = 1 jetë.'} Në këtë nivel fshihen ${L.secretsTotal} sekrete.</p>
     <div class="row"><button class="btn red" id="bGo" type="button">Fillo</button></div></div>`);
   on('bGo', beginPlay);
 }
@@ -1141,28 +1575,29 @@ function pause() {
 }
 function resume() { hideScreen(); st = 'play'; showPad(); playMusic(boss ? 'boss' : THEMES[L.theme].music); }
 function gameOver() {
-  st = 'over'; stopMusic(); setHud(false);
+  recordBest(); st = 'over'; stopMusic(); setHud(false);
   showScreen(`<div class="card"><p class="eyebrow">LOJA MBAROI</p><h2>Orikut i mbaruan jetët</h2><p class="hint">Niveli rifillon me 3 jetë të reja.</p>
     <div class="row"><button class="btn red" id="bAgain" type="button">Provo përsëri</button><button class="btn ghost" id="bQuit" type="button">Menuja</button></div></div>`);
-  on('bAgain', () => { lives = 3; startLevel(levelIdx); }); on('bQuit', toTitle);
+  on('bAgain', () => { lives = 3; score = 0; startLevel(levelIdx); }); on('bQuit', toTitle);
 }
 function levelComplete() {
   st = 'done'; setHud(false);
-  save.unlocked = Math.max(save.unlocked, Math.min(4, levelIdx + 2)); persist();
+  save.unlocked = Math.max(save.unlocked, Math.min(NLV, levelIdx + 2)); persist(); recordBest();
   const next = levelIdx + 1;
   showScreen(`<div class="card"><p class="eyebrow">NIVELI U KRYE</p><h2>${L.def.name}: e kryer</h2>
-    <div class="stats"><span><span class="coin">L</span>${levelLeke} në këtë nivel</span><span><span class="coin">L</span>${totalLeke} gjithsej</span><span><span class="plis"></span>×${lives}</span></div>
+    <div class="stats"><span><span class="coin">L</span>${levelLeke} në nivel</span><span>${levelScore} pikë</span><span>Sekrete ${L.secretsFound}/${L.secretsTotal}</span><span><span class="plis"></span>×${lives}</span></div>
+    <p class="hint">Gjithsej: ${totalLeke} lekë · ${score} pikë</p>
     <div class="row"><button class="btn red" id="bNext" type="button">Tjetri · ${LEVELS[next].name}</button><button class="btn ghost" id="bQuit" type="button">Menuja</button></div></div>`);
   on('bNext', () => startLevel(next)); on('bQuit', toTitle);
 }
 function victory() {
-  st = 'victory'; setHud(false); save.unlocked = 4; persist();
+  st = 'victory'; setHud(false); save.unlocked = NLV; persist(); const rec = recordBest();
   showScreen(`<div class="card">
-    <div class="brand"><div class="flagbox"><canvas id="vEagle" width="22" height="20"></canvas></div></div>
-    <p class="eyebrow">FITORE</p><h2>Shqiponja është e lirë!</h2><p class="en">Kuçedra nuk kthehet më. Të paktën deri te pjesa e dytë.</p>
-    <div class="stats"><span><span class="coin">L</span>${totalLeke} lekë</span><span><span class="plis"></span>×${lives} jetë mbetur</span></div>
+    <div class="row"><div class="flagbox"><canvas id="vEagle" width="22" height="20"></canvas></div><div class="flagbox helm"><canvas id="vHelm" width="18" height="16"></canvas></div></div>
+    <p class="eyebrow">FITORE</p><h2>Shqiponja është e lirë!</h2><p class="en">Dhe përkrenarja e Skënderbeut është në kokën e Orikut. Pak e madhe, por e tija.</p>
+    <div class="stats"><span><span class="coin">L</span>${totalLeke} lekë</span><span>${score} pikë${rec ? " · REKORD!" : ""}</span><span><span class="plis"></span>×${lives} jetë mbetur</span></div>
     <div class="row"><button class="btn red" id="bAgain" type="button">Luaj përsëri</button><button class="btn ghost" id="bQuit" type="button">Menuja</button></div></div>`);
-  paintEagle($('vEagle'));
+  paintEagle($('vEagle')); { const c = $('vHelm').getContext('2d'); c.imageSmoothingEnabled = false; c.drawImage(HELMET, 0, 0); }
   on('bAgain', () => newGame(0)); on('bQuit', toTitle);
 }
 
