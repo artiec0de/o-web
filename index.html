@@ -331,7 +331,7 @@ function mkB(w, theme) {
     cp(x) { L.cps.push({ x: x * 16, on: false }); return b; },
     vcoins(x, y, n) { for (let i = 0; i < n; i++) L.coins.push({ x: x * 16 + 3, y: (y + i) * 16 + 2, w: 10, h: 12, got: false }); return b; },
     feather(x, row) { L.feathers.push({ x: x * 16 + 3, y: row * 16 + 1, w: 10, h: 14, got: false }); return b; },
-    plat(x, row, axis, range, speed) { L.plats.push({ x0: x * 16, y0: row * 16, w: 48, h: 6, axis, range: range * 16, speed, x: x * 16, y: row * 16, dx: 0, dy: 0, t: 0 }); return b; },
+    plat(x, row, axis, range, speed, len = 3) { L.plats.push({ x0: x * 16, y0: row * 16, w: len * 16, h: 6, axis, range: range * 16, speed, x: x * 16, y: row * 16, dx: 0, dy: 0, t: 0 }); return b; },
     cannon(x, row, dir, period, phase = 0) { set(x, row, T.CANNON); L.cannons.push({ tx: x, ty: row, dir, period, phase, t: phase }); return b; },
     rocks(x0, x1, period) { L.rockZones.push({ x0: x0 * 16, x1: x1 * 16, period, t: 0 }); return b; },
     fish(x, period, delay = 0) { L.spawns.push({ type: 'fish', x: x * 16, yb: VH + 20, period, delay }); return b; },
@@ -407,7 +407,7 @@ function lvButrint() {
   [[23, 8], [26, 6], [29, 7], [32, 5], [35, 7], [38, 6], [41, 8]].forEach(([x, t]) => b.block(x, t, x, 11));
   b.feather(32, 4).fish(24, 110, 0).fish(30, 130, 40).fish(36, 90, 70).fish(43, 120, 20);
   b.e('hedgehog', 50).e('beetle', 55).e('beetle', 58).row(60, 6, '?').row(62, 4, '?').row(64, 6, '?').row(62, 1, 'h').cp(70).e('crow', 75, 4);
-  b.plat(81, 9, 'x', 4, 0.6).plat(90, 8, 'x', 4, 0.8).plat(100, 9, 'x', 4, 0.7).plat(110, 8, 'x', 4, 0.9).feather(95, 5).fish(88, 100, 30).fish(98, 120, 0).fish(108, 90, 60).e('crow', 104, 3);
+  b.plat(81, 9, 'x', 4, 0.7, 4).plat(90, 8, 'x', 4, 0.7, 4).plat(100, 9, 'x', 4, 0.7, 4).plat(110, 8, 'x', 4, 0.7, 4).feather(95, 5).fish(88, 100, 30).fish(98, 120, 0).fish(108, 90, 60).e('crow', 104, 3);
   b.block(125, 7, 130, 9).block(126, 3, 126, 6).block(128, 3, 128, 6).row(125, 2, 'SSSSS').row(130, 6, 'J').chest(127, 1);
   b.e('beetle', 138).e('hedgehog', 145).e('crow', 150, 4).row(154, 8, 'CC').row(156, 6, 'CC').row(158, 4, 'CC').feather(159, 3);
   b.cp(172).e('beetle', 180).e('beetle', 183).e('hedgehog', 192).e('crow', 198, 5).arc(200, 7, 6);
