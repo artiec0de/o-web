@@ -121,12 +121,12 @@ body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--font-bo
 <body>
 
 <div id="app">
-  <canvas id="game" width="320" height="192" aria-label="Ekrani i lojës Orik"></canvas>
+  <canvas id="game" width="320" height="192" aria-label="Orik"></canvas>
   <div id="pad" aria-hidden="true">
     <div class="tb" id="tL"><svg viewBox="0 0 20 20"><path d="M14 3 5 10l9 7z"/></svg></div>
     <div class="tb" id="tR"><svg viewBox="0 0 20 20"><path d="M6 3l9 7-9 7z"/></svg></div>
-    <div class="tb" id="tB"><span>B</span><small>vrap · ulli</small></div>
-    <div class="tb" id="tA"><span>A</span><small>kërce</small></div>
+    <div class="tb" id="tB"><span>B</span><small id="sPadB">vrap · ulli</small></div>
+    <div class="tb" id="tA"><span>A</span><small id="sPadA">kërce</small></div>
   </div>
   <div id="hud" hidden>
     <div class="chip"><span class="coin">L</span><b id="hLeke">0</b></div>
@@ -143,8 +143,8 @@ body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--font-bo
   <div id="rotate" hidden>
     <div class="card">
       <div class="phone"></div>
-      <h2>Rrotullo telefonin</h2>
-      <p class="hint">Orik vrapon anash. Ktheje telefonin horizontalisht.</p>
+      <h2 id="sRotT">Rrotullo telefonin</h2>
+      <p class="hint" id="sRotH">Orik vrapon anash. Ktheje telefonin horizontalisht.</p>
       <div class="row"><button class="btn ghost" id="bFsR" type="button">Ekran i plotë</button></div>
     </div>
   </div>
@@ -331,7 +331,7 @@ function mkB(w, theme) {
     cp(x) { L.cps.push({ x: x * 16, on: false }); return b; },
     vcoins(x, y, n) { for (let i = 0; i < n; i++) L.coins.push({ x: x * 16 + 3, y: (y + i) * 16 + 2, w: 10, h: 12, got: false }); return b; },
     feather(x, row) { L.feathers.push({ x: x * 16 + 3, y: row * 16 + 1, w: 10, h: 14, got: false }); return b; },
-    plat(x, row, axis, range, speed, len = 3) { L.plats.push({ x0: x * 16, y0: row * 16, w: len * 16, h: 6, axis, range: range * 16, speed, x: x * 16, y: row * 16, dx: 0, dy: 0, t: 0 }); return b; },
+    plat(x, row, axis, range, speed, len = 3, phase = 0) { L.plats.push({ x0: x * 16, y0: row * 16, w: len * 16, h: 6, axis, range: range * 16, speed, phase, x: x * 16, y: row * 16, dx: 0, dy: 0, t: phase }); return b; },
     cannon(x, row, dir, period, phase = 0) { set(x, row, T.CANNON); L.cannons.push({ tx: x, ty: row, dir, period, phase, t: phase }); return b; },
     rocks(x0, x1, period) { L.rockZones.push({ x0: x0 * 16, x1: x1 * 16, period, t: 0 }); return b; },
     fish(x, period, delay = 0) { L.spawns.push({ type: 'fish', x: x * 16, yb: VH + 20, period, delay }); return b; },
@@ -407,7 +407,7 @@ function lvButrint() {
   [[23, 8], [26, 6], [29, 7], [32, 5], [35, 7], [38, 6], [41, 8]].forEach(([x, t]) => b.block(x, t, x, 11));
   b.feather(32, 4).fish(24, 110, 0).fish(30, 130, 40).fish(36, 90, 70).fish(43, 120, 20);
   b.e('hedgehog', 50).e('beetle', 55).e('beetle', 58).row(60, 6, '?').row(62, 4, '?').row(64, 6, '?').row(62, 1, 'h').cp(70).e('crow', 75, 4);
-  b.plat(81, 9, 'x', 4, 0.7, 4).plat(90, 8, 'x', 4, 0.7, 4).plat(100, 9, 'x', 4, 0.7, 4).plat(110, 8, 'x', 4, 0.7, 4).feather(95, 5).fish(88, 100, 30).fish(98, 120, 0).fish(108, 90, 60).e('crow', 104, 3);
+  b.plat(81, 9, 'x', 4, 0.7, 4).plat(90, 8, 'x', 4, 0.7, 4).plat(100, 9, 'x', 4, 0.7, 4).plat(109, 8, 'x', 4, 0.7, 5, 64).feather(95, 5).fish(88, 100, 30).fish(98, 120, 0).fish(108, 90, 60).e('crow', 104, 3);
   b.block(125, 7, 130, 9).block(126, 3, 126, 6).block(128, 3, 128, 6).row(125, 2, 'SSSSS').row(130, 6, 'J').chest(127, 1);
   b.e('beetle', 138).e('hedgehog', 145).e('crow', 150, 4).row(154, 8, 'CC').row(156, 6, 'CC').row(158, 4, 'CC').feather(159, 3);
   b.cp(172).e('beetle', 180).e('beetle', 183).e('hedgehog', 192).e('crow', 198, 5).arc(200, 7, 6);
@@ -472,6 +472,76 @@ const LEVELS = [
   { name: 'Kalaja e Rozafës', en: 'Shkodër', short: 'ROZAFA', kind: 'boss', mission: 'Vetëm 3 pendët hapin portën. Mund Kuçedrën, liro shqiponjën dhe merr përkrenaren.', build: lvRozafa }
 ];
 const NLV = LEVELS.length;
+const LEVELS_EN = [
+  { name: 'Vlora', en: 'City of the Flag', mission: 'Find the eagle\'s 3 feathers and reach the flag within 150 seconds.' },
+  { name: 'Durrës', en: 'Dunes, bunkers and the amphitheatre', mission: 'Find 3 feathers among the dunes, the bunkers and the old pier.' },
+  { name: 'Berat', en: 'City of a Thousand Windows', mission: 'Find 3 feathers on the rooftops. Careful: some stones crumble under your feet.' },
+  { name: 'Gjirokastër', en: 'The Stone City', mission: 'Not a single lek in this town. Find 3 feathers and watch out for the castle cannons.' },
+  { name: 'Butrint', en: 'Ancient ruins and the lagoon', mission: 'Find 3 feathers among the columns and the rafts. The lagoon fish jump high.' },
+  { name: 'Krujë', en: 'Skanderbeg\'s Castle', mission: 'Find 3 feathers. Rocks fall from the walls and the cannons never sleep.' },
+  { name: 'Theth', en: 'The Accursed Mountains', mission: 'Avalanche! Find 3 feathers and run for the flag before the snow buries you.' },
+  { name: 'Rozafa Castle', en: 'Shkodër', mission: 'Only the 3 feathers can open the gate. Defeat Kuçedra, free the eagle and claim the helmet.' }
+];
+let LANG = 'sq';
+const lv = i => LANG === 'en' ? LEVELS_EN[i] : LEVELS[i];
+const I18N = {
+  sq: {
+    canvas: 'Ekrani i lojës Orik', padB: 'vrap · ulli', padA: 'kërce', mute: 'Zëri', pauseBtn: 'Pushim',
+    rotT: 'Rrotullo telefonin', rotH: 'Orik vrapon anash. Ktheje telefonin horizontalisht.', fs: 'Ekran i plotë', fsNo: 'Ekrani i plotë nuk lejohet këtu',
+    life30: '30 lekë · +1 jetë', secret: (m, f, n) => `${m} · sekrete ${f}/${n}`, hidBlock: 'Bllok i fshehur!', hidCoins: '+5 lekë të fshehura!', chestLife: 'Thesar! +1 jetë', chestLeke: 'Thesar! +10 lekë',
+    spring: 'Mbaj A për kërcim më të lartë', gateLocked: n => `Porta hapet vetëm me 3 pendë · ${n}/3`, livesLeft: n => `Orik ×${n}`,
+    bossIn: 'KUÇEDRA! Kërce mbi kokat e saj ose hidhi ullinj.', bossDown: 'Kuçedra u mund! Liro shqiponjën.', gateOpen: 'Të 3 pendët! Porta e Rozafës u hap!',
+    feather: n => `Pendë shqiponje · ${n}/3`, allFeathers: 'Të 3 pendët! Tani kap flamurin.', timeUp: 'Mbaroi koha!', cp: 'Pikë kontrolli',
+    needF: n => `Të duhen 3 pendë · ke ${n}/3`, flag: 'Flamuri u arrit!', helmet: 'Përkrenarja e Skënderbeut!',
+    popLife: '+1 JETË', popOlive: 'ULLI!', popByrek: 'BYREK!',
+    hudF: n => `PENDË ${n}/3`, hudAval: 'ORTEKU! ', hudFree: 'LIRO SHQIPONJËN', hudCastle: 'KALAJA ▸',
+    lvLabel: i => `NIVELI ${i}`, locked: 'I kyçur', tag: 'Shpëto shqiponjën <span>· një aventurë shqiptare</span>', play: 'Luaj', other: 'English', best: n => `Rekordi: ${n} pikë`,
+    help: '<b>Prekje</b> gishti i majtë lëviz, A kërcen, B vrapon dhe hedh ullinj.<br><b>Tastiera</b> shigjetat, Space kërcim, X vrap, P pushim. <b>Kontrolluesi</b> leva, A kërcim, X vrap.',
+    storyEye: (i, n) => `HISTORIA · ${i}/${n}`, next: 'Më tej ▸', cont: 'Vazhdo', skip: 'Kapërce',
+    lvEye: (i, n) => `NIVELI ${i} / ${n}`, missionLbl: 'MISIONI', pts: n => `${n} pikë`, introHint: (nc, n) => `${nc ? 'Këtu nuk ka lekë. Thesaret japin jetë.' : 'Çdo 30 lekë = 1 jetë.'} Në këtë nivel fshihen ${n} sekrete.`, startBtn: 'Fillo',
+    pauseEye: 'PUSHIM', pauseT: 'Merr frymë, Orik', resume: 'Vazhdo', restart: 'Rifillo nivelin', menu: 'Menuja',
+    overEye: 'LOJA MBAROI', overT: 'Oriku ra, por nuk u dorëzua', overH: 'Ngrihu dhe provo përsëri. Niveli rifillon me 3 jetë.', again: 'Provo përsëri',
+    doneEye: 'NIVELI U KRYE', doneT: n => `${n}: e kryer`, inLevel: n => `${n} në nivel`, secrets: (f, n) => `Sekrete ${f}/${n}`, total: (l, p) => `Gjithsej: ${l} lekë · ${p} pikë`, nextLv: n => `Tjetri · ${n}`,
+    winEye: 'FITORE', winT: 'Shqiponja është e lirë!', winSub: 'Dhe përkrenarja e Skënderbeut është në kokën e Orikut. Pak e madhe, por e tija.', record: ' · REKORD!', leftLives: n => `×${n} jetë mbetur`, playAgain: 'Luaj përsëri'
+  },
+  en: {
+    canvas: 'Orik game screen', padB: 'run · olive', padA: 'jump', mute: 'Sound', pauseBtn: 'Pause',
+    rotT: 'Rotate your phone', rotH: 'Orik runs sideways. Turn your phone to landscape.', fs: 'Fullscreen', fsNo: 'Fullscreen isn\'t allowed here',
+    life30: '30 lekë · +1 life', secret: (m, f, n) => `${m} · secrets ${f}/${n}`, hidBlock: 'Hidden block!', hidCoins: '+5 hidden lekë!', chestLife: 'Treasure! +1 life', chestLeke: 'Treasure! +10 lekë',
+    spring: 'Hold A to bounce higher', gateLocked: n => `Only 3 feathers open this gate · ${n}/3`, livesLeft: n => `Orik ×${n}`,
+    bossIn: 'KUÇEDRA! Stomp on her heads or throw olives.', bossDown: 'Kuçedra is beaten! Free the eagle.', gateOpen: 'All 3 feathers! The gate of Rozafa is open!',
+    feather: n => `Eagle feather · ${n}/3`, allFeathers: 'All 3 feathers! Now reach the flag.', timeUp: 'Time\'s up!', cp: 'Checkpoint',
+    needF: n => `You need 3 feathers · you have ${n}/3`, flag: 'Flag reached!', helmet: 'Skanderbeg\'s helmet!',
+    popLife: '+1 LIFE', popOlive: 'OLIVE!', popByrek: 'BYREK!',
+    hudF: n => `FEATHERS ${n}/3`, hudAval: 'AVALANCHE! ', hudFree: 'FREE THE EAGLE', hudCastle: 'CASTLE ▸',
+    lvLabel: i => `LEVEL ${i}`, locked: 'Locked', tag: 'Save the eagle <span>· an Albanian adventure</span>', play: 'Play', other: 'Shqip', best: n => `Best: ${n} points`,
+    help: '<b>Touch</b> left thumb moves, A jumps, B runs and throws olives.<br><b>Keyboard</b> arrows, Space jump, X run, P pause. <b>Controller</b> stick, A jump, X run.',
+    storyEye: (i, n) => `THE STORY · ${i}/${n}`, next: 'Next ▸', cont: 'Continue', skip: 'Skip',
+    lvEye: (i, n) => `LEVEL ${i} / ${n}`, missionLbl: 'MISSION', pts: n => `${n} points`, introHint: (nc, n) => `${nc ? 'No lekë in this town. Treasure chests give lives instead.' : 'Every 30 lekë = 1 extra life.'} This level hides ${n} secrets.`, startBtn: 'Start',
+    pauseEye: 'PAUSED', pauseT: 'Catch your breath, Orik', resume: 'Resume', restart: 'Restart level', menu: 'Menu',
+    overEye: 'GAME OVER', overT: 'Orik fell, but he did not give up', overH: 'Get back up and try again. The level restarts with 3 lives.', again: 'Try again',
+    doneEye: 'LEVEL COMPLETE', doneT: n => `${n}: done`, inLevel: n => `${n} this level`, secrets: (f, n) => `Secrets ${f}/${n}`, total: (l, p) => `Total: ${l} lekë · ${p} points`, nextLv: n => `Next · ${n}`,
+    winEye: 'VICTORY', winT: 'The eagle is free!', winSub: 'And Skanderbeg\'s helmet sits on Orik\'s head. A little big, but it\'s his.', record: ' · NEW RECORD!', leftLives: n => `×${n} lives left`, playAgain: 'Play again'
+  }
+};
+function say(k, ...a) { const v = (I18N[LANG] || I18N.sq)[k]; return typeof v === 'function' ? v(...a) : v; }
+const STORY_EN = {
+  start: [
+    { art: 'eagle', text: 'Once upon a time, in a land of mountains and sea, a double-headed eagle sat upon the red-and-black flag and watched over the country day and night. One head looked to the east, the other to the west. As long as she kept watch, no evil dared to cross the mountains.' },
+    { art: 'kucedra', text: 'But one moonless night the sky thundered, and Lake Shkodër churned to its very depths. Out of the dark water rose Kuçedra, the dragon with nine tongues of fire and a heart blackened by envy. With one breath she snuffed out the stars; with one beat of her wings she seized the eagle.' },
+    { art: 'helmet', text: 'She locked the eagle in an iron cage high in Rozafa Castle. Then she flew over Krujë and stole the helmet of Skanderbeg, so that no one would ever again dare to rise against her. The flags hung empty, and a heavy silence fell over the land.' },
+    { art: 'feather', text: 'But the eagle did not give in without a fight. All the way she struggled in Kuçedra\'s claws, and one by one her feathers fell over cities, ruins and mountain pastures. The old folk say that only those feathers can break the cursed cage.' },
+    { art: 'orik', text: 'In Vlora, in the last house by the sea, lived Orik, a fair-haired boy with a big heart. One morning he found a black feather on the doorstep, still warm. His grandmother set the white felt cap on his head, gave him her blessing and said: “Go, my boy. Gather the feathers one by one, and do not come home without the eagle.”' }
+  ],
+  end: [
+    { art: 'helmet', text: 'Kuçedra fell into the abyss beneath the castle. The cage burst open, and behind it something familiar gleamed: the helmet of Skanderbeg, crowned with its goat\'s head, untouched.' },
+    { art: 'eagle', text: 'The eagle rose over Shkodër and, with a sweep of her wing, set the helmet on Orik\'s head. Then she flew over Theth, Krujë, Butrint, Gjirokastër, Berat and Durrës, and settled back in the middle of the flag in Vlora.' },
+    { art: 'byrek', text: 'Orik came home with his pockets full of lekë and a helmet that kept sliding over his eyes. His grandmother was waiting with a warm tray of byrek. This time he ate two slices.' },
+    { art: 'kucedra', text: 'THE END. Or perhaps not: deep in Lake Shkodër, someone was counting nine tongues of fire.' }
+  ]
+};
+const storyStart = () => LANG === 'en' ? STORY_EN.start : STORY_START;
+const storyEnd = () => LANG === 'en' ? STORY_EN.end : STORY_END;
 const STORY_START = [
   { art: 'eagle', text: 'Na ishte një herë, ku s\'ishte, një shqiponjë me dy krerë, që rrinte mbi flamurin kuq e zi dhe e ruante vendin ditë e natë. Me njërën kokë shihte nga lindja, me tjetrën nga perëndimi. Sa kohë ajo rrinte zgjuar, asnjë e keqe nuk guxonte t\'i kalonte malet.' },
   { art: 'kucedra', text: 'Por një natë pa hënë, qielli gjëmoi dhe liqeni i Shkodrës u trazua deri në fund. Nga thellësitë e tij doli Kuçedra, me nëntë gjuhë zjarri dhe me zemër të nxirë nga zilia. Me një frymë shuajti yjet, me një të rrahur krahësh rrëmbeu shqiponjën.' },
@@ -746,7 +816,7 @@ function spawnAll() {
   rocks = [];
   for (const [k] of crumbs) { const [tx, ty] = k.split(',').map(Number); L.t[ty * L.w + tx] = T.CRUMBLE; }
   crumbs.clear();
-  for (const q of L.plats) { q.t = 0; q.x = q.x0; q.y = q.y0; q.dx = q.dy = 0; }
+  for (const q of L.plats) { q.t = q.phase; const r = q.range, u = q.t % (2 * r), off = u < r ? u : 2 * r - u; q.x = q.axis === 'x' ? q.x0 + off : q.x0; q.y = q.axis === 'y' ? q.y0 + off : q.y0; q.dx = q.dy = 0; }
   for (const c of L.cannons) c.t = c.phase;
   for (const z of L.rockZones) z.t = 0;
   aval = L.aval ? { x: sx - 210, delay: cpActive ? 90 : 150, speed: L.aval.speed } : null;
@@ -802,9 +872,9 @@ function sparkle(x, y, n, k) { for (let i = 0; i < (n || 8); i++) { const a = Ma
 function addScore(n) { score += n; levelScore += n; }
 function addLeke(n) {
   const before = totalLeke; levelLeke += n; totalLeke += n; addScore(10 * n);
-  if (Math.floor(totalLeke / 30) > Math.floor(before / 30)) { lives++; sfx('one'); toast('30 lekë · +1 jetë'); }
+  if (Math.floor(totalLeke / 30) > Math.floor(before / 30)) { lives++; sfx('one'); toast(say('life30')); }
 }
-function foundSecret(msg) { L.secretsFound++; addScore(1000); toast(`${msg} · sekrete ${L.secretsFound}/${L.secretsTotal}`, 2000); }
+function foundSecret(msg) { L.secretsFound++; addScore(1000); toast(say('secret', msg, L.secretsFound, L.secretsTotal), 2000); }
 function collectCoin(c) { c.got = true; addLeke(1); sfx('coin'); sparkle(c.x + 5, c.y + 6, 5); }
 function coinPop(tx, ty) { addPart('coin', tx * 16 + 2, ty * 16 - 14, 0, -4.2, 24); addLeke(1); sfx('coin'); }
 function brickBreak(tx, ty) { const x = tx * 16, y = ty * 16; [[-1.2, -4], [1.2, -4], [-0.9, -2.6], [0.9, -2.6]].forEach(([vx, vy], i) => addPart('brick', x + (i % 2) * 8 + 2, y + (i > 1 ? 8 : 0), vx, vy, 60)); }
@@ -816,8 +886,8 @@ function bumpBlock(tx, ty) {
   if (v === T.QCOIN) { L.t[i] = T.USED; coinPop(tx, ty); bumps.set(key, 8); }
   else if (v === T.QPOW) { L.t[i] = T.USED; bumps.set(key, 8); spawnItem(player.size === 'small' ? 'byrek' : 'olive', tx, ty); sfx('sprout'); }
   else if (v === T.MULTI) { let n = L.multi[key] || 0; if (n > 0) { n--; L.multi[key] = n; coinPop(tx, ty); bumps.set(key, 8); } if (n <= 0) L.t[i] = T.USED; }
-  else if (v === T.HID_LIFE) { L.t[i] = T.USED; bumps.set(key, 8); spawnItem('plis', tx, ty); sfx('sprout'); foundSecret('Bllok i fshehur!'); }
-  else if (v === T.HID_COIN) { L.t[i] = T.USED; bumps.set(key, 8); for (let k = 0; k < 5; k++) addPart('coin', tx * 16 + 2, ty * 16 - 14, (k - 2) * 0.7, -4 - k * 0.15, 26); addLeke(5); sfx('coin'); sfx('one'); foundSecret('+5 lekë të fshehura!'); }
+  else if (v === T.HID_LIFE) { L.t[i] = T.USED; bumps.set(key, 8); spawnItem('plis', tx, ty); sfx('sprout'); foundSecret(say('hidBlock')); }
+  else if (v === T.HID_COIN) { L.t[i] = T.USED; bumps.set(key, 8); for (let k = 0; k < 5; k++) addPart('coin', tx * 16 + 2, ty * 16 - 14, (k - 2) * 0.7, -4 - k * 0.15, 26); addLeke(5); sfx('coin'); sfx('one'); foundSecret(say('hidCoins')); }
   else if (v === T.BRICK) { if (player.size === 'big') { L.t[i] = 0; brickBreak(tx, ty); sfx('brk'); addScore(50); } else { bumps.set(key, 8); sfx('bump'); } }
   else { sfx('bump'); return; }
   const top = ty * 16, l = tx * 16, r = l + 16;
@@ -880,13 +950,13 @@ function updPlayer() {
     const cx = Math.floor((p.x + p.w / 2) / 16);
     if (fy < ROWS && L.t[fy * L.w + cx] === T.SPRING) {
       p.vy = -8.2; p.onGround = false; p.coyote = 0; bumps.set(cx + ',' + fy, 10); sfx('spring');
-      if (!springHint && !input.a) { springHint = true; toast('Mbaj A për kërcim më të lartë', 1600); }
+      if (!springHint && !input.a) { springHint = true; toast(say('spring'), 1600); }
     }
   }
   if (p.hitHead) bumpBlock(p.hitHead[0], p.hitHead[1]);
   if (p.hitWall && L.gateX != null && !L.gateOpen && denyT <= 0) {
     const tx = Math.floor((p.hitWall > 0 ? p.x + p.w + 1 : p.x - 1) / 16), ty = Math.floor((p.y + p.h - 2) / 16);
-    if (tx === L.gateX && L.t[ty * L.w + tx] === T.GATE) { toast(`Porta hapet vetëm me 3 pendë · ${mission.feathers}/3`); sfx('deny'); denyT = 120; }
+    if (tx === L.gateX && L.t[ty * L.w + tx] === T.GATE) { toast(say('gateLocked', mission.feathers)); sfx('deny'); denyT = 120; }
   }
   if (p.onGround) p.anim += Math.abs(p.vx) * 0.13;
   if (p.inv > 0) p.inv--;
@@ -899,7 +969,7 @@ function afterDeath() {
   lives--;
   if (lives <= 0) { gameOver(); return; }
   spawnAll(); playMusic(THEMES[L.theme].music);
-  toast(`Orik ×${lives}`, 1200);
+  toast(say('livesLeft', lives), 1200);
 }
 
 /* ---------------- world update ---------------- */
@@ -936,7 +1006,7 @@ function updItems() {
     if (it.emerge > 0) { it.emerge--; it.y -= 0.5; if (it.emerge === 0 && it.kind !== 'olive') it.vx = it.kind === 'plis' ? 1.2 : 1; continue; }
     if (it.kind !== 'olive' || it.vy !== 0) { it.vy = Math.min(it.vy + 0.4, 5); const pv = it.vx; moveBody(it); if (it.hitWall) it.vx = -pv; }
     if (it.y > VH + 20) it.dead = true;
-    if (!player.dead && overlap(player, it)) { it.dead = true; addScore(500); if (it.kind === 'plis') { lives++; sfx('one'); addPop(it.x, it.y, '+1 JETË'); } else { grow(it.kind === 'olive' ? 'olive' : null); addPop(it.x, it.y, it.kind === 'olive' ? 'ULLI!' : 'BYREK!'); } }
+    if (!player.dead && overlap(player, it)) { it.dead = true; addScore(500); if (it.kind === 'plis') { lives++; sfx('one'); addPop(it.x, it.y, say('popLife')); } else { grow(it.kind === 'olive' ? 'olive' : null); addPop(it.x, it.y, it.kind === 'olive' ? say('popOlive') : say('popByrek')); } }
   }
   items = items.filter(i => !i.dead);
 }
@@ -961,7 +1031,7 @@ function updFires() {
 function spawnBoss() {
   const a = L.arena;
   boss = { x: (a.x0 + 10) * 16, y: 10 * 16 - 38, w: 44, h: 38, vx: -0.8, vy: 0, hp: 9, inv: 0, t: 0, face: -1, dying: false, act: 0, fireQ: 0, fireN: 0 };
-  toast('KUÇEDRA! Kërce mbi kokat e saj ose hidhi ullinj.', 2600); playMusic('boss');
+  toast(say('bossIn'), 2600); playMusic('boss');
 }
 function hitBoss(n) {
   const b = boss; if (!b || b.dying) return;
@@ -994,12 +1064,12 @@ function updBoss() {
 function bossDefeated() {
   L.bossDead = true; addScore(5000); const a = L.arena; a.locked = false;
   for (let y = 0; y <= 9; y++) { if (L.t[y * L.w + a.x1]) { L.t[y * L.w + a.x1] = 0; brickBreak(a.x1, y); } }
-  sfx('gate'); toast('Kuçedra u mund! Liro shqiponjën.', 2600); playMusic('dark');
+  sfx('gate'); toast(say('bossDown'), 2600); playMusic('dark');
 }
 function openGate() {
   L.gateOpen = true;
   for (let y = 6; y <= 9; y++) { L.t[y * L.w + L.gateX] = 0; sparkle(L.gateX * 16 + 8, y * 16 + 8, 6); }
-  sfx('gate'); toast('Të 3 pendët! Porta e Rozafës u hap!', 2400);
+  sfx('gate'); toast(say('gateOpen'), 2400);
 }
 function updAval() {
   if (!aval || player.dead) return;
@@ -1083,22 +1153,22 @@ function updateWorld() {
     }
     for (const c of L.chests) if (!c.got && overlap(p, c)) {
       c.got = true; sfx('power'); sparkle(c.x + 7, c.y, 14);
-      if (L.noCoins) { lives++; sfx('one'); foundSecret('Thesar! +1 jetë'); } else { addLeke(10); foundSecret('Thesar! +10 lekë'); }
+      if (L.noCoins) { lives++; sfx('one'); foundSecret(say('chestLife')); } else { addLeke(10); foundSecret(say('chestLeke')); }
     }
     for (const f of L.feathers) if (!f.got && overlap(p, f)) {
       f.got = true; mission.feathers++; addScore(1000); sfx('feather'); sparkle(f.x + 5, f.y + 7, 12);
       if (L.gateX != null && mission.feathers >= 3 && !L.gateOpen) openGate();
-      else toast(mission.feathers >= 3 ? (L.gateX != null ? '' : 'Të 3 pendët! Tani kap flamurin.') : `Pendë shqiponje · ${mission.feathers}/3`);
+      else toast(mission.feathers >= 3 ? say('allFeathers') : say('feather', mission.feathers));
     }
-    if (L.def.kind === 'timer') { L.timeLeft -= 1 / 60; if (L.timeLeft <= 0) { L.timeLeft = 0; die(); toast('Mbaroi koha!', 1500); } }
+    if (L.def.kind === 'timer') { L.timeLeft -= 1 / 60; if (L.timeLeft <= 0) { L.timeLeft = 0; die(); toast(say('timeUp'), 1500); } }
     for (const k of L.keys) if (!k.got && overlap(p, k)) {
       k.got = true; mission.keys++; sfx('key'); sparkle(k.x + 7, k.y + 3, 12);
       if (mission.keys >= 3) openGate(); else toast(`Çelës i gjetur · ${mission.keys}/3`);
     }
-    for (const c of L.cps) if (!c.on && p.x >= c.x) { c.on = true; cpActive = c; sfx('cp'); toast('Pikë kontrolli', 1100); }
+    for (const c of L.cps) if (!c.on && p.x >= c.x) { c.on = true; cpActive = c; sfx('cp'); toast(say('cp'), 1100); }
     if (L.goal && overlap(p, { x: L.goal.x + 5, y: 24, w: 6, h: 120 })) {
       if (missionMet()) startClear();
-      else if (denyT <= 0) { denyT = 100; sfx('deny'); toast(`Të duhen 3 pendë · ke ${mission.feathers}/3`); }
+      else if (denyT <= 0) { denyT = 100; sfx('deny'); toast(say('needF', mission.feathers)); }
     }
     if (L.arena && !L.arena.locked && !L.bossDead && p.x > (L.arena.x0 + 1) * 16 + 4) {
       for (let y = 0; y <= 9; y++) L.t[y * L.w + L.arena.x0] = T.STONE;
@@ -1111,7 +1181,7 @@ function updateWorld() {
   updCam();
 }
 function startClear() {
-  st = 'clear'; stT = 0; stopMusic(); sfx('clear'); addScore(1000 + (L.def.kind === 'timer' ? Math.round(L.timeLeft) * 20 : 0)); toast('Flamuri u arrit!', 1500);
+  st = 'clear'; stT = 0; stopMusic(); sfx('clear'); addScore(1000 + (L.def.kind === 'timer' ? Math.round(L.timeLeft) * 20 : 0)); toast(say('flag'), 1500);
   const p = player; p.vx = 0; p.vy = 0; p.inv = 0; p.x = L.goal.x + 7 - p.w;
 }
 function updClear() {
@@ -1132,11 +1202,11 @@ function updFreeing() {
   if (hm && !p.helmet && stT > 70) {
     const tx = p.x + p.w / 2 - 9, ty = p.y - 20;
     hm.x += (tx - hm.x) * 0.06; hm.y += (ty - hm.y) * 0.06 - (stT < 110 ? 1.2 : 0);
-    if (stT > 150) { p.helmet = true; sparkle(p.x + p.w / 2, p.y, 14); sfx('power'); toast('Përkrenarja e Skënderbeut!', 2200); }
+    if (stT > 150) { p.helmet = true; sparkle(p.x + p.w / 2, p.y, 14); sfx('power'); toast(say('helmet'), 2200); }
   }
   if (stT % 6 === 0) sparkle(L.cage.x + 16 + (Math.random() - 0.5) * 30, L.eagleY + 10, 2, Math.random() < 0.5 ? 'heart' : 'spark');
   updParts(); updCam();
-  if (stT > 230) showStory(STORY_END, 0, victory);
+  if (stT > 230) showStory(storyEnd(), 0, victory);
 }
 
 /* ---------------- rendering ---------------- */
@@ -1488,11 +1558,11 @@ const hudCache = {};
 function hudSet(id, val) { if (hudCache[id] !== val) { hudCache[id] = val; $(id).textContent = val; } }
 function updHud() {
   if (!L) return;
-  hudSet('hLeke', String(totalLeke)); hudSet('hLives', '×' + lives); hudSet('hScore', String(score).padStart(6, '0')); hudSet('hLevel', (levelIdx + 1) + '·' + L.def.short);
-  const d = L.def; let m = `PENDË ${mission.feathers}/3`, done = mission.feathers >= 3, alarm = false;
+  hudSet('hLeke', String(totalLeke)); hudSet('hLives', '×' + lives); hudSet('hScore', String(score).padStart(6, '0')); hudSet('hLevel', (levelIdx + 1) + '·' + (LANG === 'en' ? lv(levelIdx).name.toUpperCase() : L.def.short));
+  const d = L.def; let m = say('hudF', mission.feathers), done = mission.feathers >= 3, alarm = false;
   if (d.kind === 'timer') { const t = Math.ceil(L.timeLeft); m += ` · ${t}`; alarm = t <= 20 && st === 'play'; }
-  else if (d.kind === 'avalanche') { const gap = aval ? player.x - aval.x : 999; if (gap < 120 && st === 'play') { alarm = true; m = 'ORTEKU! ' + m; } }
-  else if (d.kind === 'boss' && L.gateOpen) { done = false; if (boss) m = 'KUÇEDRA ' + '■'.repeat(Math.max(0, Math.ceil(boss.hp / 3))); else if (L.bossDead) { m = 'LIRO SHQIPONJËN'; done = true; } else m = 'KALAJA ▸'; }
+  else if (d.kind === 'avalanche') { const gap = aval ? player.x - aval.x : 999; if (gap < 120 && st === 'play') { alarm = true; m = say('hudAval') + m; } }
+  else if (d.kind === 'boss' && L.gateOpen) { done = false; if (boss) m = 'KUÇEDRA ' + '■'.repeat(Math.max(0, Math.ceil(boss.hp / 3))); else if (L.bossDead) { m = say('hudFree'); done = true; } else m = say('hudCastle'); }
   hudSet('hMission', m);
   const el = $('hMission'); el.classList.toggle('done', done); el.classList.toggle('alarm', alarm);
 }
@@ -1509,28 +1579,29 @@ function paintEagle(canvas) { const c = canvas.getContext('2d'); c.imageSmoothin
 
 function toTitle() {
   st = 'title'; stopMusic(); setHud(false); loadLevel(0);
-  const lvls = LEVELS.map((d, i) => `<button class="lvb" type="button" data-l="${i}" ${i + 1 > save.unlocked ? 'disabled' : ''}><b>NIVELI ${i + 1}</b>${i + 1 > save.unlocked ? 'I kyçur' : d.name}</button>`).join('');
+  const lvls = LEVELS.map((d, i) => `<button class="lvb" type="button" data-l="${i}" ${i + 1 > save.unlocked ? 'disabled' : ''}><b>${say('lvLabel', i + 1)}</b>${i + 1 > save.unlocked ? say('locked') : lv(i).name}</button>`).join('');
   showScreen(`<div class="card title">
     <div class="brand">
       <div class="flagbox"><canvas id="tEagle" width="22" height="20"></canvas></div>
       <h1 class="logo">ORIK</h1>
-      <p class="tag">Shpëto shqiponjën <span>· një aventurë shqiptare</span></p>
+      <p class="tag">${say('tag')}</p>
     </div>
     <div class="side">
       <div class="lv">${lvls}</div>
-      <div class="row"><button class="btn red" id="bPlay" type="button">Luaj</button><button class="btn ghost" id="bFs" type="button">Ekran i plotë</button></div>
-      ${save.best ? `<p class="hint">Rekordi: ${save.best} pikë</p>` : ''}
-      <p class="help"><b>Prekje</b> gishti i majtë lëviz, A kërcen, B vrapon dhe hedh ullinj.<br><b>Tastiera</b> shigjetat, Space kërcim, X vrap, P pushim. <b>Kontrolluesi</b> leva, A kërcim, X vrap.</p>
+      <div class="row"><button class="btn red" id="bPlay" type="button">${say('play')}</button><button class="btn ghost" id="bFs" type="button">${say('fs')}</button><button class="btn ghost" id="bLang" type="button">${say('other')}</button></div>
+      ${save.best ? `<p class="hint">${say('best', save.best)}</p>` : ''}
+      <p class="help">${say('help')}</p>
     </div></div>`);
   paintEagle($('tEagle'));
   on('bPlay', () => newGame(save.unlocked - 1));
   on('bFs', () => goFullscreen());
+  on('bLang', () => setLang(LANG === 'en' ? 'sq' : 'en', true));
   scr.querySelectorAll('.lvb').forEach(b => b.addEventListener('click', () => { audioInit(); newGame(+b.dataset.l); }));
 }
 function newGame(i) {
   if (isCoarse() && !document.fullscreenElement) goFullscreen(true);
   lives = 3; totalLeke = 0; score = 0;
-  if (i === 0) showStory(STORY_START, 0, () => startLevel(0)); else startLevel(i);
+  if (i === 0) showStory(storyStart(), 0, () => startLevel(0)); else startLevel(i);
 }
 function storyArt(kind) {
   if (kind === 'eagle') return EAGLE;
@@ -1543,10 +1614,10 @@ function storyArt(kind) {
 function showStory(pages, i, done) {
   st = 'story'; setHud(false);
   const last = i >= pages.length - 1, img = storyArt(pages[i].art);
-  showScreen(`<div class="card story"><p class="eyebrow">HISTORIA · ${i + 1}/${pages.length}</p>
+  showScreen(`<div class="card story"><p class="eyebrow">${say('storyEye', i + 1, pages.length)}</p>
     <canvas class="art" id="sArt" width="${img.width}" height="${img.height}" style="width:${img.width * 3}px"></canvas>
     <p class="tale">${pages[i].text}</p>
-    <div class="row"><button class="btn red" id="bSn" type="button">${last ? 'Vazhdo' : 'Më tej ▸'}</button>${last ? '' : '<button class="btn ghost" id="bSk" type="button">Kapërce</button>'}</div></div>`);
+    <div class="row"><button class="btn red" id="bSn" type="button">${last ? say('cont') : say('next')}</button>${last ? '' : `<button class="btn ghost" id="bSk" type="button">${say('skip')}</button>`}</div></div>`);
   const c = $('sArt').getContext('2d'); c.imageSmoothingEnabled = false; c.drawImage(img, 0, 0);
   on('bSn', () => last ? done() : showStory(pages, i + 1, done));
   if (!last) on('bSk', done);
@@ -1554,13 +1625,13 @@ function showStory(pages, i, done) {
 function recordBest() { if (score > (save.best || 0)) { save.best = score; persist(); return true; } return false; }
 function startLevel(i) {
   loadLevel(i); st = 'intro'; setHud(false); stopMusic();
-  const d = LEVELS[i];
+  const d = lv(i);
   showScreen(`<div class="card">
-    <p class="eyebrow">NIVELI ${i + 1} / ${NLV}</p><h2>${d.name}</h2><p class="en">${d.en}</p>
-    <div class="mission"><b>MISIONI</b>${d.mission}</div>
-    <div class="stats"><span><span class="plis"></span>×${lives}</span><span><span class="coin">L</span>${totalLeke}</span><span>${score} pikë</span></div>
-    <p class="hint">${L.noCoins ? 'Këtu nuk ka lekë. Thesaret japin jetë.' : 'Çdo 30 lekë = 1 jetë.'} Në këtë nivel fshihen ${L.secretsTotal} sekrete.</p>
-    <div class="row"><button class="btn red" id="bGo" type="button">Fillo</button></div></div>`);
+    <p class="eyebrow">${say('lvEye', i + 1, NLV)}</p><h2>${d.name}</h2><p class="en">${d.en}</p>
+    <div class="mission"><b>${say('missionLbl')}</b>${d.mission}</div>
+    <div class="stats"><span><span class="plis"></span>×${lives}</span><span><span class="coin">L</span>${totalLeke}</span><span>${say('pts', score)}</span></div>
+    <p class="hint">${say('introHint', L.noCoins, L.secretsTotal)}</p>
+    <div class="row"><button class="btn red" id="bGo" type="button">${say('startBtn')}</button></div></div>`);
   on('bGo', beginPlay);
 }
 function beginPlay() {
@@ -1569,34 +1640,34 @@ function beginPlay() {
 function pause() {
   if (st !== 'play') return;
   st = 'pause'; stopMusic();
-  showScreen(`<div class="card"><p class="eyebrow">PUSHIM</p><h2>Merr frymë, Orik</h2>
-    <div class="row"><button class="btn red" id="bRes" type="button">Vazhdo</button><button class="btn" id="bRst" type="button">Rifillo nivelin</button><button class="btn ghost" id="bQuit" type="button">Menuja</button></div></div>`);
+  showScreen(`<div class="card"><p class="eyebrow">${say('pauseEye')}</p><h2>${say('pauseT')}</h2>
+    <div class="row"><button class="btn red" id="bRes" type="button">${say('resume')}</button><button class="btn" id="bRst" type="button">${say('restart')}</button><button class="btn ghost" id="bQuit" type="button">${say('menu')}</button></div></div>`);
   on('bRes', resume); on('bRst', () => startLevel(levelIdx)); on('bQuit', toTitle);
 }
 function resume() { hideScreen(); st = 'play'; showPad(); playMusic(boss ? 'boss' : THEMES[L.theme].music); }
 function gameOver() {
   recordBest(); st = 'over'; stopMusic(); setHud(false);
-  showScreen(`<div class="card"><p class="eyebrow">LOJA MBAROI</p><h2>Oriku ra, por nuk u dorëzua</h2><p class="hint">Ngrihu dhe provo përsëri. Niveli rifillon me 3 jetë.</p>
-    <div class="row"><button class="btn red" id="bAgain" type="button">Provo përsëri</button><button class="btn ghost" id="bQuit" type="button">Menuja</button></div></div>`);
+  showScreen(`<div class="card"><p class="eyebrow">${say('overEye')}</p><h2>${say('overT')}</h2><p class="hint">${say('overH')}</p>
+    <div class="row"><button class="btn red" id="bAgain" type="button">${say('again')}</button><button class="btn ghost" id="bQuit" type="button">${say('menu')}</button></div></div>`);
   on('bAgain', () => { lives = 3; score = 0; startLevel(levelIdx); }); on('bQuit', toTitle);
 }
 function levelComplete() {
   st = 'done'; setHud(false);
   save.unlocked = Math.max(save.unlocked, Math.min(NLV, levelIdx + 2)); persist(); recordBest();
   const next = levelIdx + 1;
-  showScreen(`<div class="card"><p class="eyebrow">NIVELI U KRYE</p><h2>${L.def.name}: e kryer</h2>
-    <div class="stats"><span><span class="coin">L</span>${levelLeke} në nivel</span><span>${levelScore} pikë</span><span>Sekrete ${L.secretsFound}/${L.secretsTotal}</span><span><span class="plis"></span>×${lives}</span></div>
-    <p class="hint">Gjithsej: ${totalLeke} lekë · ${score} pikë</p>
-    <div class="row"><button class="btn red" id="bNext" type="button">Tjetri · ${LEVELS[next].name}</button><button class="btn ghost" id="bQuit" type="button">Menuja</button></div></div>`);
+  showScreen(`<div class="card"><p class="eyebrow">${say('doneEye')}</p><h2>${say('doneT', lv(levelIdx).name)}</h2>
+    <div class="stats"><span><span class="coin">L</span>${say('inLevel', levelLeke)}</span><span>${say('pts', levelScore)}</span><span>${say('secrets', L.secretsFound, L.secretsTotal)}</span><span><span class="plis"></span>×${lives}</span></div>
+    <p class="hint">${say('total', totalLeke, score)}</p>
+    <div class="row"><button class="btn red" id="bNext" type="button">${say('nextLv', lv(next).name)}</button><button class="btn ghost" id="bQuit" type="button">${say('menu')}</button></div></div>`);
   on('bNext', () => startLevel(next)); on('bQuit', toTitle);
 }
 function victory() {
   st = 'victory'; setHud(false); save.unlocked = NLV; persist(); const rec = recordBest();
   showScreen(`<div class="card">
     <div class="row"><div class="flagbox"><canvas id="vEagle" width="22" height="20"></canvas></div><div class="flagbox helm"><canvas id="vHelm" width="18" height="16"></canvas></div></div>
-    <p class="eyebrow">FITORE</p><h2>Shqiponja është e lirë!</h2><p class="en">Dhe përkrenarja e Skënderbeut është në kokën e Orikut. Pak e madhe, por e tija.</p>
-    <div class="stats"><span><span class="coin">L</span>${totalLeke} lekë</span><span>${score} pikë${rec ? " · REKORD!" : ""}</span><span><span class="plis"></span>×${lives} jetë mbetur</span></div>
-    <div class="row"><button class="btn red" id="bAgain" type="button">Luaj përsëri</button><button class="btn ghost" id="bQuit" type="button">Menuja</button></div></div>`);
+    <p class="eyebrow">${say('winEye')}</p><h2>${say('winT')}</h2><p class="en">${say('winSub')}</p>
+    <div class="stats"><span><span class="coin">L</span>${totalLeke} lekë</span><span>${say('pts', score)}${rec ? say('record') : ""}</span><span><span class="plis"></span>${say('leftLives', lives)}</span></div>
+    <div class="row"><button class="btn red" id="bAgain" type="button">${say('playAgain')}</button><button class="btn ghost" id="bQuit" type="button">${say('menu')}</button></div></div>`);
   paintEagle($('vEagle')); { const c = $('vHelm').getContext('2d'); c.imageSmoothingEnabled = false; c.drawImage(HELMET, 0, 0); }
   on('bAgain', () => newGame(0)); on('bQuit', toTitle);
 }
@@ -1613,7 +1684,7 @@ async function goFullscreen(silent) {
       if (!el.requestFullscreen) throw new Error('no fs');
       await el.requestFullscreen({ navigationUI: 'hide' });
     }
-  } catch (e) { if (silent !== true) toast('Ekrani i plotë nuk lejohet këtu', 1800); return; }
+  } catch (e) { if (silent !== true) toast(say('fsNo'), 1800); return; }
   try { await screen.orientation.lock('landscape'); } catch (e) {}
 }
 let wake = null;
@@ -1653,8 +1724,31 @@ function loop(ts) {
 }
 
 window.claude?.hot?.snapshot?.(() => ({ unlocked: save.unlocked }));
+function applyLang() {
+  document.documentElement.lang = LANG;
+  $('game').setAttribute('aria-label', say('canvas'));
+  $('sPadB').textContent = say('padB'); $('sPadA').textContent = say('padA');
+  $('bMute').setAttribute('aria-label', say('mute')); $('bPause').setAttribute('aria-label', say('pauseBtn'));
+  $('sRotT').textContent = say('rotT'); $('sRotH').textContent = say('rotH'); $('bFsR').textContent = say('fs');
+  for (const k in hudCache) delete hudCache[k];
+}
+function setLang(l, toMenu) { LANG = l === 'en' ? 'en' : 'sq'; save.lang = LANG; persist(); applyLang(); if (toMenu) toTitle(); }
+function langPicker() {
+  st = 'title'; stopMusic(); setHud(false); loadLevel(0);
+  showScreen(`<div class="card">
+    <div class="brand"><div class="flagbox"><canvas id="lEagle" width="22" height="20"></canvas></div><h1 class="logo">ORIK</h1></div>
+    <p class="eyebrow">GJUHA · LANGUAGE</p><h2>Zgjidh gjuhën<br>Choose your language</h2>
+    <div class="row"><button class="btn red" id="bSq" type="button">Shqip</button><button class="btn" id="bEn" type="button">English</button></div>
+    <p class="hint">Mund ta ndryshosh më vonë nga menuja · You can change it later from the menu</p></div>`);
+  paintEagle($('lEagle'));
+  on('bSq', () => setLang('sq', true)); on('bEn', () => setLang('en', true));
+}
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
-function start() { resize(); toTitle(); requestAnimationFrame(loop); }
+function start() {
+  resize();
+  if (save.lang === 'en' || save.lang === 'sq') { LANG = save.lang; applyLang(); toTitle(); } else { applyLang(); langPicker(); }
+  requestAnimationFrame(loop);
+}
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
 })();
 </script>
